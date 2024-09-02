@@ -24,5 +24,7 @@ namespace AppVideoGameAPI.Models
         [ForeignKey(nameof(ConsoleId))] 
         public Console? Console { get; set; }
         public short Quantita { get; set; }
+        [Required]
+        public double Prezzo { get; set; }
     }
 }

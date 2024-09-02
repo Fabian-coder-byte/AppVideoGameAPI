@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using PoolBookingApp.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -24,6 +25,8 @@ namespace AppVideoGameAPI.Models
         public ICollection<Console>? Consoles { get; set; }
         [ValidateNever]
         public ICollection<Funzionalita>? Funzionalitas { get; set; }
+        [ValidateNever]
+        public ICollection<AllegatoVideoGioco>? AllegatiVideoGiochi { get; set; }
 
     }
 }
