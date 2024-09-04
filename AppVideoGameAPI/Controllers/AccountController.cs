@@ -6,7 +6,6 @@ using AppVideoGameAPI.Utilities;
 using AppVideoGameAPI.ViewModels;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -111,8 +110,9 @@ namespace AppVideoGameAPI.Controllers
             }
         }
 
-        [AllowAnonymous]
-        [HttpPost]
+
+        [Authorize]
+        [HttpGet]
         [Route("GetUser")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -121,10 +121,19 @@ namespace AppVideoGameAPI.Controllers
         {
             try
             {
-                _logger.LogInformation($"{DateTime.Now.ToString("dd/MM/yyyy hh:mm")} AccountController");
-                var username = User.Identity.Name;
-                var email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-                return Ok();
+                var email = User.Identity.Name; // Ottiene l'email dal claim del token
+                DataUser UtenteLOggato = await _userManager.FindByEmailAsync(email) ?? throw new ArgumentException("Errore Utente");
+                DatiUtente DatiUtente = new()
+                {
+                    Cognome=UtenteLOggato.Cognome!,
+                    Email=email,
+                    Nome=UtenteLOggato.Nome!
+                };
+                return Ok(JsonConvert.SerializeObject(DatiUtente, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
             }
             catch (Exception ex)
             {

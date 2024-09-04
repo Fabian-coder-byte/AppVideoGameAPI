@@ -8,7 +8,7 @@ namespace AppVideoGameAPI.Models
     {
         public int Id { get; set; }
         [Required]
-        public DateTime Data { get; set; }
+        public DateTime? Data { get; set; }
         [Required]
         [StringLength(450)]
         public string? UtenteId { get; set; }
