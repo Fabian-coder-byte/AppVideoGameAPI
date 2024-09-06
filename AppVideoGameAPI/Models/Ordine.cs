@@ -7,7 +7,6 @@ namespace AppVideoGameAPI.Models
     public class Ordine
     {
         public int Id { get; set; }
-        [Required]
         public DateTime? Data { get; set; }
         [Required]
         [StringLength(450)]

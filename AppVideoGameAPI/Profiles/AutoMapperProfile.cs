@@ -13,6 +13,9 @@ namespace AppVideoGameAPI.Profile
             //CasaProduttrice
             CreateMap<Models.CasaProduttrice, DTO.CasaProduttrice>().ReverseMap();
             CreateMap<DTO.CasaProduttrice, Models.CasaProduttrice>().ReverseMap();
+            //Recensione
+            CreateMap<Models.Recensione, DTO.Recensione.RecensioneCreate>().ReverseMap();
+            CreateMap<DTO.Recensione.RecensioneCreate, Models.Recensione>().ReverseMap();
         }
     }
 }

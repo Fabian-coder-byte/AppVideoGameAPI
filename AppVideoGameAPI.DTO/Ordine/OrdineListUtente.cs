@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace AppVideoGameAPI.DTO.Ordine
 {
-    public class OrdineList:OrdineListUtente
+    public class OrdineListUtente
     {
-        public string NomeCgnome { get; set; }
-        public string Email { get; set; }
-
+        public DateTime? DataOrdine { get; set; }
+        public List<Ordine.OrdineItem> Items { get; set; }
     }
 }
