@@ -7,5 +7,6 @@
         public string? Descrizione { get; set; }
         public DateOnly? DataRilascio { get; set; }
         public int CasaProduttriceId { get; set; }
+        public string? ContentImage { get; set; }
     }
 }

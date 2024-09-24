@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 
 namespace AppVideoGameAPI.Models
@@ -14,5 +15,7 @@ namespace AppVideoGameAPI.Models
         [Required]
         public string? IndirizzoUtente { get; set; }
         public DateTime? UltimoAccesso { get; set; }
+        [ValidateNever]
+        public ICollection<AllegatoUtente>? AllegatiUtenti { get; set; }
     }
 }

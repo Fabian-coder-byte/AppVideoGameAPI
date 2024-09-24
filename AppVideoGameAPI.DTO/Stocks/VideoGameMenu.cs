@@ -12,9 +12,11 @@ namespace AppVideoGameAPI.DTO.Stocks
     {
         public int Id { get; set; }
         public string NomeVideoGioco { get; set; }
-        public string FormatoVideoGioco { get; set; }
         public string NomeConsole { get; set; }
-        public short QuantitaRimanenti { get; set; }
+        public string FormatoVideoGioco { get; set; }
         public double Prezzo { get; set; }
+        public int QuantitaRimanenti { get; set; }
+        public string CodeImage { get; set; }
+
     }
 }

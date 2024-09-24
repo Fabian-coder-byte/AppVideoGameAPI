@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using PoolBookingApp.Models;
 
 namespace AppVideoGameAPI.Data
 {
@@ -23,7 +24,8 @@ namespace AppVideoGameAPI.Data
         public DbSet<RequisitiPC> RequisitiPCs { get; set; }
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<VideoGioco> VideoGiochi { get; set; }
-
+        public DbSet<AllegatoUtente> AllegatiUtente { get; set; }
+        public DbSet<AllegatoVideoGioco> AllegatiVideoGiochi { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 

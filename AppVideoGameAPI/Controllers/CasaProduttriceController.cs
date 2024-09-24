@@ -1,6 +1,7 @@
 ﻿using AppVideoGameAPI.Data;
 using AppVideoGameAPI.Utilities;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -18,6 +19,7 @@ namespace AppVideoGameAPI.Controllers
         [Route("GetAll")]
         [ProducesResponseType(typeof(List<DTO.CasaProduttrice>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize]
         public IActionResult GetAll()
         {
             List<DTO.CasaProduttrice> results = [];

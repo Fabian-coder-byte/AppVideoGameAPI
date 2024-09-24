@@ -67,7 +67,10 @@ namespace AppVideoGameAPI
                     {
                         builder.WithOrigins("http://localhost:5173")
                                .AllowAnyHeader()
-                               .AllowAnyMethod();
+                               .AllowAnyMethod()
+                               .AllowCredentials()
+                               .WithExposedHeaders("Authorization") // Espone l'header Authorization se usi JWT
+                               .SetPreflightMaxAge(TimeSpan.FromMinutes(10)); // Cache per la preflight request
                     });
             });
 
@@ -89,7 +92,6 @@ namespace AppVideoGameAPI
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

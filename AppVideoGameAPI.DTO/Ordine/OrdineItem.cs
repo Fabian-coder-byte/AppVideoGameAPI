@@ -12,5 +12,9 @@ namespace AppVideoGameAPI.DTO.Ordine
         public string FormatoGioco { get; set; }
         public string ConsoleGioco { get; set; }
         public short Quantita { get; set; }
+        public string CodeImage { get; set; }
+        public double Prezzo { get; set; }
+        public int OrderId { get; set; }
+        public int ItemId { get; set; }
     }
 }

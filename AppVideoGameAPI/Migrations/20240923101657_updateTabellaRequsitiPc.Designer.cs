@@ -4,6 +4,7 @@ using AppVideoGameAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppVideoGameAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240923101657_updateTabellaRequsitiPc")]
+    partial class updateTabellaRequsitiPc
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,46 +217,6 @@ namespace AppVideoGameAPI.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "b7a3f41e-5854-4644-9ce8-c953e3418919",
-                            AccessFailedCount = 0,
-                            Cognome = "Sartini",
-                            ConcurrencyStamp = "35796993-e00d-4f64-a5b6-10f7b450dc7c",
-                            Email = "fabiansartini@gmail.com",
-                            EmailConfirmed = true,
-                            IndirizzoUtente = "Via Pragelato 20",
-                            LockoutEnabled = false,
-                            Nome = "Fabian",
-                            NormalizedEmail = "FABIANSARTINI@GMAIL.COM",
-                            NormalizedUserName = "FABIANSARTINI@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOoZbhH5nBcqZEWl5Ttxz60xAMJV9M/LLRw+bW37twwMQrSYgxpbnPc8CVdn5XlAig==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "073b1159-a423-4c55-a955-554b8c8c0123",
-                            TwoFactorEnabled = false,
-                            UserName = "fabiansartini@gmail.com"
-                        },
-                        new
-                        {
-                            Id = "af7f5235-8893-45e3-9e28-5de33098e980",
-                            AccessFailedCount = 0,
-                            Cognome = "Sartini",
-                            ConcurrencyStamp = "0f6bf848-f41a-4b43-a488-cdac9856ec5d",
-                            Email = "spaceplayer98@gmail.com",
-                            EmailConfirmed = true,
-                            IndirizzoUtente = "Via Russo 238",
-                            LockoutEnabled = false,
-                            Nome = "Fabian",
-                            NormalizedEmail = "SPACEPLAYER98@GMAIL.COM",
-                            NormalizedUserName = "SPACEPLAYER98@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOEJp9tKNn2J+oZDpQr95BUSjnK6467EwU3RyAik+tU7OZUb+x/Y2q8OMgUXEFDMug==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "e89eaac4-1a47-455d-9a2f-1bc9cc6ce64f",
-                            TwoFactorEnabled = false,
-                            UserName = "spaceplayer98@gmail.com"
-                        });
                 });
 
             modelBuilder.Entity("AppVideoGameAPI.Models.FormatoGioco", b =>
@@ -494,11 +457,6 @@ namespace AppVideoGameAPI.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<string>("Graphics")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<int>("LivelloRichiestoId")
                         .HasColumnType("int");
 
@@ -675,20 +633,6 @@ namespace AppVideoGameAPI.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = "2",
-                            Name = "Customer",
-                            NormalizedName = "CUSTOMER"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -776,18 +720,6 @@ namespace AppVideoGameAPI.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "b7a3f41e-5854-4644-9ce8-c953e3418919",
-                            RoleId = "2"
-                        },
-                        new
-                        {
-                            UserId = "af7f5235-8893-45e3-9e28-5de33098e980",
-                            RoleId = "1"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>

@@ -8,9 +8,11 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using PoolBookingApp.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -109,8 +111,6 @@ namespace AppVideoGameAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
-
-
         [Authorize]
         [HttpGet]
         [Route("GetUser")]
@@ -142,6 +142,60 @@ namespace AppVideoGameAPI.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("AddAllegato")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult>  AddAllegato(UtenteAllegatoVM ObjSent)
+        {
+            try
+            {
+                if (!TryValidateModel(ObjSent)) return BadRequest();
+                Models.DataUser Utente = await _context.Users
+                    .Include(u => u.AllegatiUtenti) 
+                    .FirstOrDefaultAsync(u => u.Id == ObjSent.UtenteId)
+                    ?? throw new ArgumentException(Constants.BadRequest);
+                foreach (IFormFile el in ObjSent.FileCaricato)
+                {
+                    using BinaryReader reader = new(el.OpenReadStream());
+                    Utente.AllegatiUtenti.Add(new()
+                    {
+                        Content = reader.ReadBytes((int)el.Length),
+                        NomeFile = el.FileName,
+                        UserId = Utente.Id,
+                    });
+                }
+                _context.SaveChanges();
+                return Ok(JsonConvert.SerializeObject(ObjSent, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
+            }
+        }
+        [HttpGet]
+        [Route("GetImageById")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetImageById(string Id)
+        {
+            try
+            {
+                AllegatoUtente AllegatoUtenteGame = _context.AllegatiUtente.FirstOrDefault(a => a.UserId == Id) ?? throw new ArgumentException(Constants.ImmagineNotFound);
+                string codeImage = Convert.ToBase64String(AllegatoUtenteGame.Content!);
+                return Ok(codeImage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
         #region [ PRIVATE METHODS ]
         private async Task<DataUser> ValidateUser(LoginCredentials credentials)
         {

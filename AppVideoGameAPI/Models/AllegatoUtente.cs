@@ -11,7 +11,7 @@ namespace AppVideoGameAPI.Models
         public string? NomeFile { get; set; }
         [Required]
         public byte[]? Content { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         [ForeignKey(nameof(UserId))]
         public DataUser? DataUser { get; set; }
     }

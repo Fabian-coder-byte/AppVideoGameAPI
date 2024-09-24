@@ -10,19 +10,24 @@ namespace AppVideoGameAPI.Models
         public int Id { get; set; }
         [Required]
         [StringLength(255)]
-        public string? RAM { get; set; }
-        [Required]
-        [StringLength(255)]
         public string? OS { get; set; }
         [Required]
         [StringLength(255)]
-        public string? Processore { get; set; }
+        public string? Processor { get; set; }
         [Required]
         [StringLength(255)]
-        public string? SchedaGrafica { get; set; }
+        public string? Graphics { get; set; }
         [Required]
         [StringLength(255)]
-        public string? Audio { get; set; }
+        public string? Memory { get; set; }
+        [Required]
+        [StringLength(255)]
+        public string? DirectX { get; set; }
+        [Required]
+        [StringLength(255)]
+        public string? Storage { get; set; }
+        [StringLength(255)]
+        public string? AdditionalNotes { get; set; }
         [Required]
         public int LivelloRichiestoId { get; set; }
         [ForeignKey(nameof(LivelloRichiestoId))]
