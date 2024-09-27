@@ -299,5 +299,129 @@ namespace AppVideoGameAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
+
+        [HttpGet]
+        [Route("GetGenereGioco")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetGenereGioco(int Id)
+        {
+            List<DTO.VideoGame.ListaGeneriGioco> GeneriList = [];
+            try
+            {
+                if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
+                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x=>x.Generi).FirstOrDefault(x=>x.Id==Id) ?? throw new ArgumentException(Constants.VideoGameNotFound);
+
+                List<Models.Genere> GenereData = [.. VideoGioco.Generi!];
+                foreach (Models.Genere Gen in GenereData)
+                {
+                    DTO.VideoGame.ListaGeneriGioco GenereGioco = new()
+                    {
+                      NomeGenere=Gen.Nome!
+                    };
+                    GeneriList.Add(GenereGioco);
+                }
+
+                return Ok(JsonConvert.SerializeObject(GeneriList, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
+            }
+        }[HttpGet]
+        [Route("GetAllGeneri")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetAllGeneri()
+        {
+            List<DTO.VideoGame.ListaGeneriGioco> GeneriList = [];
+            try
+            {
+                if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
+
+                List<Models.Genere> GenereData = [.. _context.Generi.Include(x=>x.VideoGiochi)];
+                foreach (Models.Genere Gen in GenereData)
+                {
+                    DTO.VideoGame.ListaGeneriGioco GenereGioco = new()
+                    {
+                      NomeGenere=Gen.Nome!,
+                      Id=Gen.Id,
+                    };
+                    GenereGioco.VideoGiochi = [];
+                    foreach (Models.VideoGioco el in Gen.VideoGiochi!)
+                    {
+                        GenereGioco.VideoGiochi!.Add(el.Nome!);
+                    }
+                    GeneriList.Add(GenereGioco);
+                }
+                return Ok(JsonConvert.SerializeObject(GeneriList, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
+            }
+        }
+
+        [HttpGet]
+        [Route("CreateGenere")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult CreateGenere(string NomeGenere)
+        {
+            try
+            {
+                if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
+                Genere GenereNew = new()
+                {
+                    Nome = NomeGenere,
+                };
+                _context.Generi.Add(GenereNew);
+                _context.SaveChanges();
+                return Ok(JsonConvert.SerializeObject(GenereNew, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("AssociareGenereGioco")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult AssociareGenereGioco(int GenereId,int GiocoId)
+        {
+            try
+            {
+                if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
+                Genere Genere = _context.Generi.FirstOrDefault(x=>x.Id == GenereId) ?? throw new ArgumentException(Constants.BadRequest);
+                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x=>x.Generi).FirstOrDefault(x=>x.Id==GiocoId) ?? throw new ArgumentException(Constants.VideoGameNotFound);
+                VideoGioco.Generi!.Add(Genere);
+                _context.SaveChanges();
+                return Ok(JsonConvert.SerializeObject(Genere, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 }

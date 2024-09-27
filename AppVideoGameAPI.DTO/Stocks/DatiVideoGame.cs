@@ -12,5 +12,7 @@ namespace AppVideoGameAPI.DTO.Stocks
         public double Prezzo { get; set; }
         public List<string> CodeImages { get; set; }
         public string DescrizioneGioco { get; set; }
+        public DateOnly? DataRilascio { get; set; }
+    
     }
 }

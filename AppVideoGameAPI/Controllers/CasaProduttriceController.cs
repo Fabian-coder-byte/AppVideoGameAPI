@@ -19,7 +19,7 @@ namespace AppVideoGameAPI.Controllers
         [Route("GetAll")]
         [ProducesResponseType(typeof(List<DTO.CasaProduttrice>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Authorize]
+        //[Authorize]
         public IActionResult GetAll()
         {
             List<DTO.CasaProduttrice> results = [];

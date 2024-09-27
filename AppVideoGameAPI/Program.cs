@@ -24,6 +24,9 @@ namespace AppVideoGameAPI
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
                 options.EnableDetailedErrors();
             });
+
+
+
             //identity
             builder.Services.AddIdentity<DataUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -56,22 +59,21 @@ namespace AppVideoGameAPI
                     ClockSkew = TimeSpan.Zero
                 };
             });
+        
 
 
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowSpecificOrigin",
-                    builder =>
-                    {
-                        builder.WithOrigins("http://localhost:5173")
-                               .AllowAnyHeader()
-                               .AllowAnyMethod()
-                               .AllowCredentials()
-                               .WithExposedHeaders("Authorization") // Espone l'header Authorization se usi JWT
-                               .SetPreflightMaxAge(TimeSpan.FromMinutes(10)); // Cache per la preflight request
-                    });
+                options.AddPolicy("AllowSpecificOrigin", builder =>
+                {
+                    builder.WithOrigins("http://localhost:3000")
+                           .AllowAnyHeader()
+                           .AllowAnyMethod()
+                            .SetIsOriginAllowed(origin => true)
+                            .AllowCredentials();
+                });
             });
 
             builder.Services.AddControllers();
@@ -88,10 +90,10 @@ namespace AppVideoGameAPI
                 app.UseSwaggerUI();
             }
             app.UseCors("AllowSpecificOrigin");
-
+            app.UseAuthentication(); // Aggiungi questa riga per l'autenticazione JWT
+            app.UseAuthorization();
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
 
             app.MapControllers();
 

@@ -108,7 +108,7 @@ namespace AppVideoGameAPI.Controllers
                     ThenInclude(a=>a.CasaProduttrice).
                     Include(x=>x.VideoGioco)
                     .ThenInclude(a=>a.AllegatiVideoGiochi)
-                    .Include(x => x.Formato).FirstOrDefault(x => x.VideoGiocoId == id) ?? throw new ArgumentException(Constants.VideoGameNotFound);
+                    .Include(x => x.Formato).FirstOrDefault(x => x.Id == id) ?? throw new ArgumentException(Constants.VideoGameNotFound);
 
                 DatiVideoGame VideoGioco = new()
                 {
@@ -118,7 +118,10 @@ namespace AppVideoGameAPI.Controllers
                     Prezzo=StockVideoGame.Prezzo,
                     QuantitaRimanenti=StockVideoGame.Quantita,
                     FormatoVideoGioco=StockVideoGame.Formato.Nome,
-                    DescrizioneGioco=StockVideoGame.VideoGioco.Descrizione
+                    DescrizioneGioco=StockVideoGame.VideoGioco.Descrizione,
+                    Id=id,
+                    DataRilascio=StockVideoGame.VideoGioco.DataRilascio
+                    
                 };
                 List<AllegatoVideoGioco>? allegatiVideoGiochi = _context.AllegatiVideoGiochi.Where(a => a.VideoGiocoId == StockVideoGame.Id).ToList();
                 if (allegatiVideoGiochi.Count != 0)
