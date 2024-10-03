@@ -32,8 +32,8 @@ namespace AppVideoGameAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Cognome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Cognome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     IndirizzoUtente = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UltimoAccesso = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -57,12 +57,29 @@ namespace AppVideoGameAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CaratteristicheTecniche",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CPU = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    GPU = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Memoria = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    SchedaArchiviazione = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    AdditionalNotes = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CaratteristicheTecniche", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CaseProduttrici",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Nome = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -70,16 +87,16 @@ namespace AppVideoGameAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Consoles",
+                name: "Colori",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    NomeColore = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Consoles", x => x.Id);
+                    table.PrimaryKey("PK_Colori", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -88,7 +105,7 @@ namespace AppVideoGameAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Descrizione = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -102,24 +119,11 @@ namespace AppVideoGameAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Nome = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Generi", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "LivelliRichiestiPC",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LivelliRichiestiPC", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -139,6 +143,27 @@ namespace AppVideoGameAPI.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AllegatiUtente",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NomeFile = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AllegatiUtente", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AllegatiUtente_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -234,8 +259,8 @@ namespace AppVideoGameAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UtenteId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    Data = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UtenteId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -249,47 +274,122 @@ namespace AppVideoGameAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "VideoGiochi",
+                name: "AllegatiVideoGiochi",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NomeFile = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    VideoGiocoId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AllegatiVideoGiochi", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Consoles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nome = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    VideoGiocoId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Consoles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ModelliConsole",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ConsoleId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ModelliConsole", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ModelliConsole_Consoles_ConsoleId",
+                        column: x => x.ConsoleId,
+                        principalTable: "Consoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StockConsoles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ModelloConsoleId = table.Column<int>(type: "int", nullable: false),
+                    ColoreId = table.Column<int>(type: "int", nullable: false),
+                    CaratteristcaTecnicaId = table.Column<int>(type: "int", nullable: false),
+                    CaratteristichaTecnicaId = table.Column<int>(type: "int", nullable: false),
+                    Prezzo = table.Column<double>(type: "float", nullable: false),
+                    Quantita = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StockConsoles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StockConsoles_CaratteristicheTecniche_CaratteristichaTecnicaId",
+                        column: x => x.CaratteristichaTecnicaId,
+                        principalTable: "CaratteristicheTecniche",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_StockConsoles_Colori_ColoreId",
+                        column: x => x.ColoreId,
+                        principalTable: "Colori",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_StockConsoles_ModelliConsole_ModelloConsoleId",
+                        column: x => x.ModelloConsoleId,
+                        principalTable: "ModelliConsole",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VideoGiochi",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nome = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Descrizione = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DataRilascio = table.Column<DateOnly>(type: "date", nullable: true),
-                    CasaProduttriceId = table.Column<int>(type: "int", nullable: false)
+                    CasaProduttriceId = table.Column<int>(type: "int", nullable: false),
+                    CaratteristicaTecnicaId = table.Column<int>(type: "int", nullable: false),
+                    ModelloConsoleId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VideoGiochi", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VideoGiochi_CaratteristicheTecniche_CaratteristicaTecnicaId",
+                        column: x => x.CaratteristicaTecnicaId,
+                        principalTable: "CaratteristicheTecniche",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_VideoGiochi_CaseProduttrici_CasaProduttriceId",
                         column: x => x.CasaProduttriceId,
                         principalTable: "CaseProduttrici",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ConsoleVideoGioco",
-                columns: table => new
-                {
-                    ConsolesId = table.Column<int>(type: "int", nullable: false),
-                    VideoGiochiId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ConsoleVideoGioco", x => new { x.ConsolesId, x.VideoGiochiId });
                     table.ForeignKey(
-                        name: "FK_ConsoleVideoGioco_Consoles_ConsolesId",
-                        column: x => x.ConsolesId,
-                        principalTable: "Consoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ConsoleVideoGioco_VideoGiochi_VideoGiochiId",
-                        column: x => x.VideoGiochiId,
-                        principalTable: "VideoGiochi",
+                        name: "FK_VideoGiochi_ModelliConsole_ModelloConsoleId",
+                        column: x => x.ModelloConsoleId,
+                        principalTable: "ModelliConsole",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -300,7 +400,7 @@ namespace AppVideoGameAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Descrizione = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     VideoGiocoId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -348,7 +448,7 @@ namespace AppVideoGameAPI.Migrations
                     Voto = table.Column<short>(type: "smallint", nullable: false),
                     Descrizione = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     VideoGiocoId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
                     Data = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -369,38 +469,6 @@ namespace AppVideoGameAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RequisitiPCs",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RAM = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CPU = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OS = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Processore = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SchedaGrafica = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Audio = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LivelloRichiestoId = table.Column<int>(type: "int", nullable: false),
-                    VideoGiocoId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RequisitiPCs", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_RequisitiPCs_LivelliRichiestiPC_LivelloRichiestoId",
-                        column: x => x.LivelloRichiestoId,
-                        principalTable: "LivelliRichiestiPC",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_RequisitiPCs_VideoGiochi_VideoGiocoId",
-                        column: x => x.VideoGiocoId,
-                        principalTable: "VideoGiochi",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Stocks",
                 columns: table => new
                 {
@@ -409,7 +477,8 @@ namespace AppVideoGameAPI.Migrations
                     VideoGiocoId = table.Column<int>(type: "int", nullable: false),
                     FormatoGiocoId = table.Column<int>(type: "int", nullable: false),
                     ConsoleId = table.Column<int>(type: "int", nullable: false),
-                    Quantita = table.Column<short>(type: "smallint", nullable: false)
+                    Quantita = table.Column<short>(type: "smallint", nullable: false),
+                    Prezzo = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -475,8 +544,66 @@ namespace AppVideoGameAPI.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "Cognome", "ConcurrencyStamp", "Email", "EmailConfirmed", "IndirizzoUtente", "LockoutEnabled", "LockoutEnd", "Nome", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UltimoAccesso", "UserName" },
                 values: new object[,]
                 {
-                    { "7ab05ebd-702b-4a1a-9be0-5e15a51751de", 0, "Sartini", "f218a6a6-cb81-4b3f-a18e-b0de66f21e49", "fabiansartini@gmail.com", true, "Via Pragelato 20", false, null, "Fabian", "FABIANSARTINI@GMAIL.COM", "FABIANSARTINI@GMAIL.COM", "AQAAAAIAAYagAAAAEMU8918byfNvAHBbST/xaQEiIXceCYSNG+1mPfOWkXafFubu7iNx0usvv2TYhu+J0Q==", null, false, "97035c5d-dfad-450b-8119-675a864be166", false, null, "fabiansartini@gmail.com" },
-                    { "ffc0b503-32a5-41fb-851a-83e75da29ab1", 0, "Sartini", "aa801e3a-ddf6-4f25-b7a5-70b1eb04f500", "spaceplayer98@gmail.com", true, "Via Russo 238", false, null, "Fabian", "SPACEPLAYER98@GMAIL.COM", "SPACEPLAYER98@GMAIL.COM", "AQAAAAIAAYagAAAAEIqaovZjN3WMrZW70De1i3HTFrWL+wo4KWHdSzYv8/250MBi2sRKIlY1AJDrrmeOpw==", null, false, "77140147-0a1a-4b27-8e17-50073892bd7e", false, null, "spaceplayer98@gmail.com" }
+                    { "83326a62-8e95-4032-a179-e906d35744ea", 0, "Sartini", "bdc5609e-4474-4513-a01f-922b82bc2437", "fabiansartini@gmail.com", true, "Via Pragelato 20", false, null, "Fabian", "FABIANSARTINI@GMAIL.COM", "FABIANSARTINI@GMAIL.COM", "AQAAAAIAAYagAAAAEHDSYji9dy7DIulBo6LMv4+gsko40grHJ+W5+VefPKx+hcqgxAOtQSZTdGPOxxoWpA==", null, false, "2ed7dedb-6d0e-481b-9b2b-503327364a38", false, null, "fabiansartini@gmail.com" },
+                    { "c4b38e66-b15e-44fd-b124-b3782b1df2e0", 0, "Sartini", "937870f9-78c8-4655-9326-e5e014522954", "spaceplayer98@gmail.com", true, "Via Russo 238", false, null, "Fabian", "SPACEPLAYER98@GMAIL.COM", "SPACEPLAYER98@GMAIL.COM", "AQAAAAIAAYagAAAAEGt7DuO4fVxGaIB9Wgfpt/TPaxUBLnBiIs3zMjfZLdqyzqSkKhLyI2wAUG2Z8Ciq6g==", null, false, "89542520-f8f7-4474-9a68-6d407129bc28", false, null, "spaceplayer98@gmail.com" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "CaratteristicheTecniche",
+                columns: new[] { "Id", "AdditionalNotes", "CPU", "GPU", "Memoria", "SchedaArchiviazione" },
+                values: new object[] { 1, null, "i7", "GeForce 3050", "16Gb", "1024" });
+
+            migrationBuilder.InsertData(
+                table: "CaseProduttrici",
+                columns: new[] { "Id", "Nome" },
+                values: new object[,]
+                {
+                    { 1, "Insomniac Games" },
+                    { 2, "Sony" },
+                    { 3, "Nintendo" },
+                    { 4, "Microsoft" },
+                    { 5, "Naughty Dogs" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Colori",
+                columns: new[] { "Id", "NomeColore" },
+                values: new object[,]
+                {
+                    { 1, "Rosso" },
+                    { 2, "Giallo" },
+                    { 3, "Bianco" },
+                    { 4, "Nero" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Consoles",
+                columns: new[] { "Id", "Nome", "VideoGiocoId" },
+                values: new object[,]
+                {
+                    { 1, "Xbox 360", null },
+                    { 2, "PlayStation 4", null },
+                    { 3, "PC", null },
+                    { 4, "Nintendo", null }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Formati",
+                columns: new[] { "Id", "Descrizione", "Nome" },
+                values: new object[,]
+                {
+                    { 1, null, "Codice Digitale" },
+                    { 2, null, "DVD" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Generi",
+                columns: new[] { "Id", "Nome" },
+                values: new object[,]
+                {
+                    { 1, "Sparatutto" },
+                    { 2, "Horror" },
+                    { 3, "Avventura" }
                 });
 
             migrationBuilder.InsertData(
@@ -484,9 +611,38 @@ namespace AppVideoGameAPI.Migrations
                 columns: new[] { "RoleId", "UserId" },
                 values: new object[,]
                 {
-                    { "2", "7ab05ebd-702b-4a1a-9be0-5e15a51751de" },
-                    { "1", "ffc0b503-32a5-41fb-851a-83e75da29ab1" }
+                    { "2", "83326a62-8e95-4032-a179-e906d35744ea" },
+                    { "1", "c4b38e66-b15e-44fd-b124-b3782b1df2e0" }
                 });
+
+            migrationBuilder.InsertData(
+                table: "VideoGiochi",
+                columns: new[] { "Id", "CaratteristicaTecnicaId", "CasaProduttriceId", "DataRilascio", "Descrizione", "ModelloConsoleId", "Nome" },
+                values: new object[,]
+                {
+                    { 1, 1, 1, new DateOnly(2020, 5, 12), null, null, "Ratchet e Clank " },
+                    { 2, 1, 4, new DateOnly(2020, 5, 12), null, null, "Gears of War" },
+                    { 3, 1, 5, new DateOnly(2020, 5, 12), null, null, "The Last of Us" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Funzionalitas",
+                columns: new[] { "Id", "Descrizione", "Nome", "VideoGiocoId" },
+                values: new object[,]
+                {
+                    { 1, null, "Giocatore Singolo", 2 },
+                    { 2, null, "Co-Op", 1 }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AllegatiUtente_UserId",
+                table: "AllegatiUtente",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AllegatiVideoGiochi_VideoGiocoId",
+                table: "AllegatiVideoGiochi",
+                column: "VideoGiocoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -528,9 +684,9 @@ namespace AppVideoGameAPI.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ConsoleVideoGioco_VideoGiochiId",
-                table: "ConsoleVideoGioco",
-                column: "VideoGiochiId");
+                name: "IX_Consoles_VideoGiocoId",
+                table: "Consoles",
+                column: "VideoGiocoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Funzionalitas_VideoGiocoId",
@@ -553,6 +709,11 @@ namespace AppVideoGameAPI.Migrations
                 column: "StockId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ModelliConsole_ConsoleId",
+                table: "ModelliConsole",
+                column: "ConsoleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Ordini_UtenteId",
                 table: "Ordini",
                 column: "UtenteId");
@@ -568,14 +729,19 @@ namespace AppVideoGameAPI.Migrations
                 column: "VideoGiocoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RequisitiPCs_LivelloRichiestoId",
-                table: "RequisitiPCs",
-                column: "LivelloRichiestoId");
+                name: "IX_StockConsoles_CaratteristichaTecnicaId",
+                table: "StockConsoles",
+                column: "CaratteristichaTecnicaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RequisitiPCs_VideoGiocoId",
-                table: "RequisitiPCs",
-                column: "VideoGiocoId");
+                name: "IX_StockConsoles_ColoreId",
+                table: "StockConsoles",
+                column: "ColoreId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StockConsoles_ModelloConsoleId",
+                table: "StockConsoles",
+                column: "ModelloConsoleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Stocks_ConsoleId",
@@ -593,14 +759,50 @@ namespace AppVideoGameAPI.Migrations
                 column: "VideoGiocoId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_VideoGiochi_CaratteristicaTecnicaId",
+                table: "VideoGiochi",
+                column: "CaratteristicaTecnicaId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_VideoGiochi_CasaProduttriceId",
                 table: "VideoGiochi",
                 column: "CasaProduttriceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VideoGiochi_ModelloConsoleId",
+                table: "VideoGiochi",
+                column: "ModelloConsoleId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AllegatiVideoGiochi_VideoGiochi_VideoGiocoId",
+                table: "AllegatiVideoGiochi",
+                column: "VideoGiocoId",
+                principalTable: "VideoGiochi",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Consoles_VideoGiochi_VideoGiocoId",
+                table: "Consoles",
+                column: "VideoGiocoId",
+                principalTable: "VideoGiochi",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Consoles_VideoGiochi_VideoGiocoId",
+                table: "Consoles");
+
+            migrationBuilder.DropTable(
+                name: "AllegatiUtente");
+
+            migrationBuilder.DropTable(
+                name: "AllegatiVideoGiochi");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -617,9 +819,6 @@ namespace AppVideoGameAPI.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "ConsoleVideoGioco");
-
-            migrationBuilder.DropTable(
                 name: "Funzionalitas");
 
             migrationBuilder.DropTable(
@@ -632,7 +831,7 @@ namespace AppVideoGameAPI.Migrations
                 name: "Recensioni");
 
             migrationBuilder.DropTable(
-                name: "RequisitiPCs");
+                name: "StockConsoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -647,13 +846,10 @@ namespace AppVideoGameAPI.Migrations
                 name: "Stocks");
 
             migrationBuilder.DropTable(
-                name: "LivelliRichiestiPC");
+                name: "Colori");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Consoles");
 
             migrationBuilder.DropTable(
                 name: "Formati");
@@ -662,7 +858,16 @@ namespace AppVideoGameAPI.Migrations
                 name: "VideoGiochi");
 
             migrationBuilder.DropTable(
+                name: "CaratteristicheTecniche");
+
+            migrationBuilder.DropTable(
                 name: "CaseProduttrici");
+
+            migrationBuilder.DropTable(
+                name: "ModelliConsole");
+
+            migrationBuilder.DropTable(
+                name: "Consoles");
         }
     }
 }

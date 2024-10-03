@@ -18,14 +18,16 @@ namespace AppVideoGameAPI.Data
         public DbSet<Funzionalita> Funzionalitas { get; set; }
         public DbSet<Genere> Generi { get; set; }
         public DbSet<ItemOrdine> ItemOrdini { get; set; }
-        public DbSet<LivelloRichiestoPC> LivelliRichiestiPC { get; set; }
         public DbSet<Ordine> Ordini { get; set; }
         public DbSet<Recensione> Recensioni { get; set; }
-        public DbSet<RequisitiPC> RequisitiPCs { get; set; }
-        public DbSet<Stock> Stocks { get; set; }
+        public DbSet<StockVideoGioco> Stocks { get; set; }
         public DbSet<VideoGioco> VideoGiochi { get; set; }
         public DbSet<AllegatoUtente> AllegatiUtente { get; set; }
         public DbSet<AllegatoVideoGioco> AllegatiVideoGiochi { get; set; }
+        public DbSet<Colore> Colori { get; set; }
+        public DbSet<ModelloConsole> ModelliConsole { get; set; }
+        public DbSet<StockConsole> StockConsoles { get; set; }
+        public DbSet<CaratteristichaTecnica> CaratteristicheTecniche { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
@@ -112,14 +114,21 @@ namespace AppVideoGameAPI.Data
               new Genere { Id = 2, Nome = "Horror" },
               new Genere { Id = 3, Nome = "Avventura" }
              );
-            builder.Entity<LivelloRichiestoPC>().HasData(
-            new LivelloRichiestoPC { Id = 1, Nome = "Base", },
-            new LivelloRichiestoPC { Id = 2, Nome = "Minimo"}
-            );
+
+            builder.Entity<Colore>().HasData(
+           new Colore { Id = 1, NomeColore = "Rosso" },
+           new Colore { Id = 2, NomeColore = "Giallo" },
+           new Colore { Id = 3, NomeColore = "Bianco" },
+           new Colore { Id = 4, NomeColore = "Nero" }
+           );
+
+            builder.Entity<CaratteristichaTecnica>().HasData(
+           new CaratteristichaTecnica { Id = 1, CPU="i7",GPU="GeForce 3050",Memoria="16Gb",SchedaArchiviazione="1024" }
+           );
             builder.Entity<VideoGioco>().HasData(
-           new VideoGioco { Id = 1, Nome = "Ratchet e Clank ",CasaProduttriceId=1,DataRilascio=new DateOnly(2020,05,12) },
-           new VideoGioco { Id = 2, Nome = "Gears of War", CasaProduttriceId = 4, DataRilascio = new DateOnly(2020, 05, 12) },
-           new VideoGioco { Id = 3, Nome = "The Last of Us", CasaProduttriceId = 5, DataRilascio = new DateOnly(2020, 05, 12) }
+           new VideoGioco { Id = 1, Nome = "Ratchet e Clank ",CasaProduttriceId=1,DataRilascio=new DateOnly(2020,05,12),CaratteristicaTecnicaId=1 },
+           new VideoGioco { Id = 2, Nome = "Gears of War", CasaProduttriceId = 4, DataRilascio = new DateOnly(2020, 05, 12), CaratteristicaTecnicaId = 1 },
+           new VideoGioco { Id = 3, Nome = "The Last of Us", CasaProduttriceId = 5, DataRilascio = new DateOnly(2020, 05, 12), CaratteristicaTecnicaId = 1 }
            );
 
         }

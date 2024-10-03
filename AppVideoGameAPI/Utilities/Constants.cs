@@ -8,5 +8,6 @@
         public const string VideoGameNotFound = "VideoGioco non trovato";
         public const string ImmagineNotFound = "Non è presente alcuna immagine per questo vieogioco";
         public const string RequisitiPCError = "C'è stato un problema con il caricamento dei requsiti PC";
+        public const string ConsoleNotFound = "Non è stata trovata alcuna console";
     }
 }

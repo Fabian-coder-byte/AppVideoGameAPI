@@ -27,11 +27,11 @@ namespace AppVideoGameAPI.Controllers
             List<VideoGameMenu> results = [];
             try
             {
-                List<Models.Stock> Stocks = [.. _context.Stocks.
+                List<Models.StockVideoGioco> Stocks = [.. _context.Stocks.
                     Include(x=>x.Console).
                     Include(x=>x.VideoGioco).
                     Include(x=>x.Formato)];
-                foreach (Models.Stock StockItem in Stocks)
+                foreach (Models.StockVideoGioco StockItem in Stocks)
                 {
                     VideoGameMenu stock = new()
                     {
@@ -70,7 +70,7 @@ namespace AppVideoGameAPI.Controllers
             {
                 if (!TryValidateModel(stockSent)) return BadRequest();
 
-                Models.Stock stock = new()
+                Models.StockVideoGioco stock = new()
                 {
                     ConsoleId = stockSent.ConsoleId,
                     FormatoGiocoId=stockSent.FormatoGiocoId,
@@ -102,7 +102,7 @@ namespace AppVideoGameAPI.Controllers
         {
             try
             {
-                Models.Stock StockVideoGame = _context.Stocks.
+                Models.StockVideoGioco StockVideoGame = _context.Stocks.
                     Include(x => x.Console).
                     Include(x => x.VideoGioco).
                     ThenInclude(a=>a.CasaProduttrice).

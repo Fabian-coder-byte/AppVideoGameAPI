@@ -7,7 +7,7 @@
 namespace AppVideoGameAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class RelazioneAllegato : Migration
+    public partial class updateConsoleTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,30 +15,30 @@ namespace AppVideoGameAPI.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetUserRoles",
                 keyColumns: new[] { "RoleId", "UserId" },
-                keyValues: new object[] { "1", "6995444a-8e66-4b09-a2cd-4a6c35b94f43" });
+                keyValues: new object[] { "2", "83326a62-8e95-4032-a179-e906d35744ea" });
 
             migrationBuilder.DeleteData(
                 table: "AspNetUserRoles",
                 keyColumns: new[] { "RoleId", "UserId" },
-                keyValues: new object[] { "2", "9764771f-51b1-4983-b31e-d9eb448e2f1b" });
+                keyValues: new object[] { "1", "c4b38e66-b15e-44fd-b124-b3782b1df2e0" });
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "6995444a-8e66-4b09-a2cd-4a6c35b94f43");
+                keyValue: "83326a62-8e95-4032-a179-e906d35744ea");
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "9764771f-51b1-4983-b31e-d9eb448e2f1b");
+                keyValue: "c4b38e66-b15e-44fd-b124-b3782b1df2e0");
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "Cognome", "ConcurrencyStamp", "Email", "EmailConfirmed", "IndirizzoUtente", "LockoutEnabled", "LockoutEnd", "Nome", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UltimoAccesso", "UserName" },
                 values: new object[,]
                 {
-                    { "7c7edaf5-ff5b-4475-ad62-12bd7b6d77d0", 0, "Sartini", "e72dd7c1-9f47-4d43-b215-5b912fa4dd8f", "spaceplayer98@gmail.com", true, "Via Russo 238", false, null, "Fabian", "SPACEPLAYER98@GMAIL.COM", "SPACEPLAYER98@GMAIL.COM", "AQAAAAIAAYagAAAAENlLDocLzaRDDtuPAP73SXKqHM1Bz+EsEtpICDbKT50EzNDB7FDPnTBIHBgEBJYBfg==", null, false, "175306a5-c7fc-40b6-b91e-735a503a28f5", false, null, "spaceplayer98@gmail.com" },
-                    { "bdee13a5-d83c-4c76-898d-bffbe3cf1524", 0, "Sartini", "0fe78a4d-a65e-49d8-bca6-6029923ed8ff", "fabiansartini@gmail.com", true, "Via Pragelato 20", false, null, "Fabian", "FABIANSARTINI@GMAIL.COM", "FABIANSARTINI@GMAIL.COM", "AQAAAAIAAYagAAAAEO3k/8eOd20iRTn8CCmSCifncvC8NBurXGoBieH4uzLoJG6Uh6kyuD0NNNx+u9j+EA==", null, false, "5f26163e-9cf8-4c58-ab33-a952ce177253", false, null, "fabiansartini@gmail.com" }
+                    { "c6c36be1-5fc6-4274-b459-c8832bd5acba", 0, "Sartini", "2ebe633e-fb95-427e-9d84-cf38c5751ebb", "spaceplayer98@gmail.com", true, "Via Russo 238", false, null, "Fabian", "SPACEPLAYER98@GMAIL.COM", "SPACEPLAYER98@GMAIL.COM", "AQAAAAIAAYagAAAAEDcrsjuMBRroS35puuJhzG0Us/yYtDf4Ptm7geLjE7eqrJ3ZfKhH05LHzkv7z0wNHg==", null, false, "ab21527c-fab1-4d52-9d21-fadd9250a6dd", false, null, "spaceplayer98@gmail.com" },
+                    { "db4e80d6-846b-43d8-bd2a-19223a13acf0", 0, "Sartini", "b3b96a9d-0e69-4347-a5e8-3da10c45a7aa", "fabiansartini@gmail.com", true, "Via Pragelato 20", false, null, "Fabian", "FABIANSARTINI@GMAIL.COM", "FABIANSARTINI@GMAIL.COM", "AQAAAAIAAYagAAAAEPRt8MWoLritLMQ12QaKa6InvpcD7vuzSkpwCOXyZ8y7plOL9qgSlj8HN/1uLgYbLg==", null, false, "6f944fbe-c155-49c7-96c3-3e0fc463d08d", false, null, "fabiansartini@gmail.com" }
                 });
 
             migrationBuilder.InsertData(
@@ -46,8 +46,8 @@ namespace AppVideoGameAPI.Migrations
                 columns: new[] { "RoleId", "UserId" },
                 values: new object[,]
                 {
-                    { "1", "7c7edaf5-ff5b-4475-ad62-12bd7b6d77d0" },
-                    { "2", "bdee13a5-d83c-4c76-898d-bffbe3cf1524" }
+                    { "1", "c6c36be1-5fc6-4274-b459-c8832bd5acba" },
+                    { "2", "db4e80d6-846b-43d8-bd2a-19223a13acf0" }
                 });
         }
 
@@ -57,30 +57,30 @@ namespace AppVideoGameAPI.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetUserRoles",
                 keyColumns: new[] { "RoleId", "UserId" },
-                keyValues: new object[] { "1", "7c7edaf5-ff5b-4475-ad62-12bd7b6d77d0" });
+                keyValues: new object[] { "1", "c6c36be1-5fc6-4274-b459-c8832bd5acba" });
 
             migrationBuilder.DeleteData(
                 table: "AspNetUserRoles",
                 keyColumns: new[] { "RoleId", "UserId" },
-                keyValues: new object[] { "2", "bdee13a5-d83c-4c76-898d-bffbe3cf1524" });
+                keyValues: new object[] { "2", "db4e80d6-846b-43d8-bd2a-19223a13acf0" });
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "7c7edaf5-ff5b-4475-ad62-12bd7b6d77d0");
+                keyValue: "c6c36be1-5fc6-4274-b459-c8832bd5acba");
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "bdee13a5-d83c-4c76-898d-bffbe3cf1524");
+                keyValue: "db4e80d6-846b-43d8-bd2a-19223a13acf0");
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "Cognome", "ConcurrencyStamp", "Email", "EmailConfirmed", "IndirizzoUtente", "LockoutEnabled", "LockoutEnd", "Nome", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UltimoAccesso", "UserName" },
                 values: new object[,]
                 {
-                    { "6995444a-8e66-4b09-a2cd-4a6c35b94f43", 0, "Sartini", "5746aabc-bd78-4b6f-80dd-b5923bd91d26", "spaceplayer98@gmail.com", true, "Via Russo 238", false, null, "Fabian", "SPACEPLAYER98@GMAIL.COM", "SPACEPLAYER98@GMAIL.COM", "AQAAAAIAAYagAAAAEIsj96YbY26RWOQhMYTDxqs/1sJVnEfuexXQhUddwGCfx6kZbDdtVqaRUfZV0Us66A==", null, false, "c81533e3-405f-4274-ae7a-be2d75465757", false, null, "spaceplayer98@gmail.com" },
-                    { "9764771f-51b1-4983-b31e-d9eb448e2f1b", 0, "Sartini", "733d74f4-2500-45be-9815-78d44dbdbf5b", "fabiansartini@gmail.com", true, "Via Pragelato 20", false, null, "Fabian", "FABIANSARTINI@GMAIL.COM", "FABIANSARTINI@GMAIL.COM", "AQAAAAIAAYagAAAAEODM/G50kCBcU1OqXJEfmUT1Jatzxk5bAkUCuSNYxT5O6abbYMoCcZOZzJd7ZgEegw==", null, false, "800e1b0a-6b08-4848-b6d3-ca3243315da5", false, null, "fabiansartini@gmail.com" }
+                    { "83326a62-8e95-4032-a179-e906d35744ea", 0, "Sartini", "bdc5609e-4474-4513-a01f-922b82bc2437", "fabiansartini@gmail.com", true, "Via Pragelato 20", false, null, "Fabian", "FABIANSARTINI@GMAIL.COM", "FABIANSARTINI@GMAIL.COM", "AQAAAAIAAYagAAAAEHDSYji9dy7DIulBo6LMv4+gsko40grHJ+W5+VefPKx+hcqgxAOtQSZTdGPOxxoWpA==", null, false, "2ed7dedb-6d0e-481b-9b2b-503327364a38", false, null, "fabiansartini@gmail.com" },
+                    { "c4b38e66-b15e-44fd-b124-b3782b1df2e0", 0, "Sartini", "937870f9-78c8-4655-9326-e5e014522954", "spaceplayer98@gmail.com", true, "Via Russo 238", false, null, "Fabian", "SPACEPLAYER98@GMAIL.COM", "SPACEPLAYER98@GMAIL.COM", "AQAAAAIAAYagAAAAEGt7DuO4fVxGaIB9Wgfpt/TPaxUBLnBiIs3zMjfZLdqyzqSkKhLyI2wAUG2Z8Ciq6g==", null, false, "89542520-f8f7-4474-9a68-6d407129bc28", false, null, "spaceplayer98@gmail.com" }
                 });
 
             migrationBuilder.InsertData(
@@ -88,8 +88,8 @@ namespace AppVideoGameAPI.Migrations
                 columns: new[] { "RoleId", "UserId" },
                 values: new object[,]
                 {
-                    { "1", "6995444a-8e66-4b09-a2cd-4a6c35b94f43" },
-                    { "2", "9764771f-51b1-4983-b31e-d9eb448e2f1b" }
+                    { "2", "83326a62-8e95-4032-a179-e906d35744ea" },
+                    { "1", "c4b38e66-b15e-44fd-b124-b3782b1df2e0" }
                 });
         }
     }

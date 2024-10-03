@@ -30,14 +30,14 @@ namespace AppVideoGameAPI.Controllers
             List<DTO.VideoGioco> results = [];
             try
             {
-                List<Models.VideoGioco> VideoGiochi = [.. _context.VideoGiochi];
+                List<Models.VideoGioco> VideoGiochi = [.. _context.VideoGiochi.Include(x=>x.CasaProduttrice)];
 
                 foreach (Models.VideoGioco VideoGioco in VideoGiochi)
                 {
                     DTO.VideoGioco videogioco = new()
                     {
                        Id = VideoGioco.Id,
-                       CasaProduttriceId= VideoGioco.CasaProduttriceId,
+                       CasaProduttrice= VideoGioco.CasaProduttrice!.Nome,
                        DataRilascio=VideoGioco.DataRilascio,
                        Descrizione=VideoGioco.Descrizione,
                        Nome=VideoGioco.Nome,
@@ -205,28 +205,23 @@ namespace AppVideoGameAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult GetRequisitiPCById(int Id)
         {
-                List<DTO.VideoGame.RequisitiPC> RequisitiPCList = [];
             try
             {
                 if(!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
-                List<Models.RequisitiPC> RequisitiPCDatas = [.. _context.RequisitiPCs.Include(x=>x.LivelloRichiesto).Where(x => x.VideoGiocoId == Id)];
-                foreach(Models.RequisitiPC RequisitiPCData in RequisitiPCDatas)
-                {
+                Models.VideoGioco VideoGioco = _context.VideoGiochi.FirstOrDefault(x=>x.Id == Id) 
+                    ?? throw new ArgumentException(Constants.VideoGameNotFound);
+                Models.CaratteristichaTecnica RequisitoVideoGame = VideoGioco.RequisitoTecnico
+                    ?? throw new ArgumentException(Constants.BadRequest);
                     DTO.VideoGame.RequisitiPC RequisitiPCObj = new()
                     {
-                        Memory = RequisitiPCData.Memory,
-                        DirectX = RequisitiPCData.DirectX,
-                        AdditionalNotes = RequisitiPCData.AdditionalNotes,
-                        OS = RequisitiPCData.OS,
-                        Processor = RequisitiPCData.Processor,
-                        Storage = RequisitiPCData.Storage,
-                        Graphics = RequisitiPCData.Graphics,
-                        LivelloRichiesto = RequisitiPCData.LivelloRichiesto!.Nome
+                        Id = RequisitoVideoGame!.Id,
+                        CPU= RequisitoVideoGame.CPU,
+                        GPU= RequisitoVideoGame.GPU,
+                        Memoria= RequisitoVideoGame.Memoria,
+                        AdditionalNotes= RequisitoVideoGame.AdditionalNotes,
+                        SchedaArchiviazione= RequisitoVideoGame.SchedaArchiviazione
                     };
-                    RequisitiPCList.Add(RequisitiPCObj);
-                }
-             
-                return Ok(JsonConvert.SerializeObject(RequisitiPCList, new JsonSerializerSettings()
+                return Ok(JsonConvert.SerializeObject(RequisitiPCObj, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
                     Formatting = Formatting.Indented,
@@ -238,69 +233,7 @@ namespace AppVideoGameAPI.Controllers
 
             }
         }
-        [HttpPost]
-        [Route("CreateRequisitiPC")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult CreateRequisitiPC( RequisitiPCVM Obj)
-        {
-            try
-            {
-                if (!ModelState.IsValid) throw new  ArgumentException(Constants.BadRequest);
-                Models.RequisitiPC RequsitiPCObj = new()
-                {
-                    
-                    DirectX = Obj.DirectX,
-                    Storage = Obj.Storage,
-                    Processor = Obj.Processor,
-                    OS = Obj.OS,
-                    AdditionalNotes = Obj.AdditionalNotes,
-                    Memory = Obj.Memory,
-                    VideoGiocoId = Obj.VideoGiocoId,
-                    LivelloRichiestoId=Obj.LivelloRichiestoId,
-                    Graphics=Obj.Graphics,
-                };
-                _context.RequisitiPCs.Add(RequsitiPCObj);
-                _context.SaveChanges();
-                return Ok(JsonConvert.SerializeObject(RequsitiPCObj, new JsonSerializerSettings()
-                {
-                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
-                    Formatting = Formatting.Indented,
-                }));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
-        [HttpPost]
-        [Route("CreateLivelloPC")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult CreateLivelloPC(string NomeLivello)
-        {
-            try
-            {
-                if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
-                Models.LivelloRichiestoPC LivelloPCObj = new()
-                {
-                    Nome= NomeLivello
-                };
-                _context.LivelliRichiestiPC.Add(LivelloPCObj);
-                _context.SaveChanges();
-                return Ok(JsonConvert.SerializeObject(LivelloPCObj, new JsonSerializerSettings()
-                {
-                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
-                    Formatting = Formatting.Indented,
-                }));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
-
-
+       
         [HttpGet]
         [Route("GetGenereGioco")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -423,5 +356,6 @@ namespace AppVideoGameAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
     }
 }

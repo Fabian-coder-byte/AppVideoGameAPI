@@ -17,12 +17,16 @@ namespace AppVideoGameAPI.Models
         [Required]
         public int CasaProduttriceId { get; set; }
         [ForeignKey(nameof(CasaProduttriceId))]
+        public int CaratteristicaTecnicaId { get; set; }
+        [Required]
+        [ForeignKey(nameof(CaratteristicaTecnicaId))]
+        public CaratteristichaTecnica? RequisitoTecnico { get; set; }
         [ValidateNever]
         public CasaProduttrice? CasaProduttrice { get; set; }
         [ValidateNever]
         public ICollection<Genere>? Generi { get; set; }
         [ValidateNever]
-        public ICollection<Console>? Consoles { get; set; }
+        public ICollection<ModelloConsole>? Consoles { get; set; }
         [ValidateNever]
         public ICollection<Funzionalita>? Funzionalitas { get; set; }
         [ValidateNever]

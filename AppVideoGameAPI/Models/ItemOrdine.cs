@@ -11,7 +11,7 @@ namespace AppVideoGameAPI.Models
         public int StockId { get; set; }
         [ValidateNever]
         [ForeignKey(nameof(StockId))]
-        public Stock? Stock { get; set; }
+        public StockVideoGioco? Stock { get; set; }
         public short Quantita { get; set; }
         [Required]
         public int OrdineId { get; set; }

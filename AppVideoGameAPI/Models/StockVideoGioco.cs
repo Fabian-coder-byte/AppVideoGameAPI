@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AppVideoGameAPI.Models
 {
-    public class Stock
+    public class StockVideoGioco
     {
         [Key]
         public int Id { get; set; }

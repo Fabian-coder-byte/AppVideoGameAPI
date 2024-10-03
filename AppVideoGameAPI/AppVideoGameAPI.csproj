@@ -26,4 +26,8 @@
 	  <ProjectReference Include="..\AppVideoGameAPI.DTO\AppVideoGameAPI.DTO.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Migrations\" />
+	</ItemGroup>
+
 </Project>

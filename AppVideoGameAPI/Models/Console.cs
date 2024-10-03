@@ -10,7 +10,8 @@ namespace AppVideoGameAPI.Models
         [Required]
         [StringLength(150)]
         public string? Nome { get; set; }
+       
         [ValidateNever]
-        public ICollection<VideoGioco>? VideoGiochi { get; set; }
+        public ICollection<ModelloConsole>? ModelliConsoles { get; set; }
     }
 }

@@ -6,7 +6,7 @@
         public string? Nome { get; set; }
         public string? Descrizione { get; set; }
         public DateOnly? DataRilascio { get; set; }
-        public int CasaProduttriceId { get; set; }
-        public string? ContentImage { get; set; }
+        public string? CasaProduttrice { get; set; }
+        public byte[]? ContentImage { get; set; }
     }
 }

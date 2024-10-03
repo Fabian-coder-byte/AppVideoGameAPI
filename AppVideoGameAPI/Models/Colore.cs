@@ -2,12 +2,11 @@
 
 namespace AppVideoGameAPI.Models
 {
-    public class LivelloRichiestoPC
+    public class Colore
     {
         [Key]
         public int Id { get; set; }
         [Required]
-        [StringLength(150)]
-        public string? Nome { get; set; }
+        public string? NomeColore { get; set; }
     }
 }
