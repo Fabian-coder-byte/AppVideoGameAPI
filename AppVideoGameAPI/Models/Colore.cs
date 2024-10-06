@@ -7,6 +7,6 @@ namespace AppVideoGameAPI.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        public string? NomeColore { get; set; }
+        public string? CodiceColore { get; set; }
     }
 }

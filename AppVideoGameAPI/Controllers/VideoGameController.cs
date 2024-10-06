@@ -30,20 +30,20 @@ namespace AppVideoGameAPI.Controllers
             List<DTO.VideoGioco> results = [];
             try
             {
-                List<Models.VideoGioco> VideoGiochi = [.. _context.VideoGiochi.Include(x=>x.CasaProduttrice)];
+                List<Models.VideoGioco> VideoGiochi = [.. _context.VideoGiochi.Include(x => x.CasaProduttrice)];
 
                 foreach (Models.VideoGioco VideoGioco in VideoGiochi)
                 {
                     DTO.VideoGioco videogioco = new()
                     {
-                       Id = VideoGioco.Id,
-                       CasaProduttrice= VideoGioco.CasaProduttrice!.Nome,
-                       DataRilascio=VideoGioco.DataRilascio,
-                       Descrizione=VideoGioco.Descrizione,
-                       Nome=VideoGioco.Nome,
-                       
+                        Id = VideoGioco.Id,
+                        CasaProduttrice = VideoGioco.CasaProduttrice!.Nome,
+                        DataRilascio = VideoGioco.DataRilascio,
+                        Descrizione = VideoGioco.Descrizione,
+                        Nome = VideoGioco.Nome,
+
                     };
-                    
+
                     results.Add(videogioco);
                 }
 
@@ -72,10 +72,10 @@ namespace AppVideoGameAPI.Controllers
                 if (!TryValidateModel(ObjSent)) return BadRequest();
                 Models.VideoGioco NewVideoGame = new()
                 {
-                    CasaProduttriceId=ObjSent.CasaProduttriceId,
-                    DataRilascio=ObjSent.DataRilascio,
+                    CasaProduttriceId = ObjSent.CasaProduttriceId,
+                    DataRilascio = ObjSent.DataRilascio,
                     Descrizione = ObjSent.Descrizione,
-                    Nome=ObjSent.Nome
+                    Nome = ObjSent.Nome
                 };
                 _context.VideoGiochi.Add(NewVideoGame);
                 _context.SaveChanges();
@@ -103,17 +103,17 @@ namespace AppVideoGameAPI.Controllers
             {
 
                 if (!TryValidateModel(ObjSent)) return BadRequest();
-                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x=>x.AllegatiVideoGiochi).
-                    FirstOrDefault(x=>x.Id==ObjSent.VideoGameId) 
+                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x => x.AllegatiVideoGiochi).
+                    FirstOrDefault(x => x.Id == ObjSent.VideoGameId)
                     ?? throw new ArgumentException(Constants.VideoGameNotFound);
-                foreach(IFormFile el in ObjSent.FileCaricato)
+                foreach (IFormFile el in ObjSent.FileCaricato)
                 {
                     using BinaryReader reader = new(el.OpenReadStream());
                     VideoGioco.AllegatiVideoGiochi.Add(new()
                     {
-                        Content= reader.ReadBytes((int)el.Length),
+                        Content = reader.ReadBytes((int)el.Length),
                         NomeFile = el.FileName,
-                        VideoGiocoId=VideoGioco.Id,
+                        VideoGiocoId = VideoGioco.Id,
                     });
                 }
                 _context.SaveChanges();
@@ -139,7 +139,7 @@ namespace AppVideoGameAPI.Controllers
             try
             {
                 AllegatoVideoGioco AllegatoVideoGame = _context.AllegatiVideoGiochi.FirstOrDefault(a => a.VideoGiocoId == Id) ?? throw new ArgumentException(Constants.ImmagineNotFound);
-                    string codeImage = Convert.ToBase64String(AllegatoVideoGame.Content!);
+                string codeImage = Convert.ToBase64String(AllegatoVideoGame.Content!);
                 return Ok(codeImage);
             }
             catch (Exception ex)
@@ -157,8 +157,8 @@ namespace AppVideoGameAPI.Controllers
         {
             try
             {
-               List<AllegatoVideoGioco>  AllegatoVideoGames = [.. _context.AllegatiVideoGiochi.Where(a => a.VideoGiocoId == Id)];
-                foreach(AllegatoVideoGioco allegato in AllegatoVideoGames)
+                List<AllegatoVideoGioco> AllegatoVideoGames = [.. _context.AllegatiVideoGiochi.Where(a => a.VideoGiocoId == Id)];
+                foreach (AllegatoVideoGioco allegato in AllegatoVideoGames)
                 {
                     _context.AllegatiVideoGiochi.Remove(allegato);
                 }
@@ -184,7 +184,7 @@ namespace AppVideoGameAPI.Controllers
         {
             try
             {
-               AllegatoVideoGioco AllegatoVideoGame = _context.AllegatiVideoGiochi.FirstOrDefault(a => a.Id == Id) ?? throw new ArgumentException(Constants.BadRequest);
+                AllegatoVideoGioco AllegatoVideoGame = _context.AllegatiVideoGiochi.FirstOrDefault(a => a.Id == Id) ?? throw new ArgumentException(Constants.BadRequest);
                 _context.AllegatiVideoGiochi.Remove(AllegatoVideoGame);
                 _context.SaveChanges();
                 return Ok(JsonConvert.SerializeObject(AllegatoVideoGame, new JsonSerializerSettings()
@@ -207,20 +207,20 @@ namespace AppVideoGameAPI.Controllers
         {
             try
             {
-                if(!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
-                Models.VideoGioco VideoGioco = _context.VideoGiochi.FirstOrDefault(x=>x.Id == Id) 
+                if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
+                Models.VideoGioco VideoGioco = _context.VideoGiochi.FirstOrDefault(x => x.Id == Id)
                     ?? throw new ArgumentException(Constants.VideoGameNotFound);
                 Models.CaratteristichaTecnica RequisitoVideoGame = VideoGioco.RequisitoTecnico
                     ?? throw new ArgumentException(Constants.BadRequest);
-                    DTO.VideoGame.RequisitiPC RequisitiPCObj = new()
-                    {
-                        Id = RequisitoVideoGame!.Id,
-                        CPU= RequisitoVideoGame.CPU,
-                        GPU= RequisitoVideoGame.GPU,
-                        Memoria= RequisitoVideoGame.Memoria,
-                        AdditionalNotes= RequisitoVideoGame.AdditionalNotes,
-                        SchedaArchiviazione= RequisitoVideoGame.SchedaArchiviazione
-                    };
+                DTO.VideoGame.RequisitiPC RequisitiPCObj = new()
+                {
+                    Id = RequisitoVideoGame!.Id,
+                    CPU = RequisitoVideoGame.CPU,
+                    GPU = RequisitoVideoGame.GPU,
+                    Memoria = RequisitoVideoGame.Memoria,
+                    AdditionalNotes = RequisitoVideoGame.AdditionalNotes,
+                    SchedaArchiviazione = RequisitoVideoGame.SchedaArchiviazione
+                };
                 return Ok(JsonConvert.SerializeObject(RequisitiPCObj, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
@@ -233,7 +233,7 @@ namespace AppVideoGameAPI.Controllers
 
             }
         }
-       
+
         [HttpGet]
         [Route("GetGenereGioco")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -244,14 +244,14 @@ namespace AppVideoGameAPI.Controllers
             try
             {
                 if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
-                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x=>x.Generi).FirstOrDefault(x=>x.Id==Id) ?? throw new ArgumentException(Constants.VideoGameNotFound);
+                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x => x.Generi).FirstOrDefault(x => x.Id == Id) ?? throw new ArgumentException(Constants.VideoGameNotFound);
 
                 List<Models.Genere> GenereData = [.. VideoGioco.Generi!];
                 foreach (Models.Genere Gen in GenereData)
                 {
                     DTO.VideoGame.ListaGeneriGioco GenereGioco = new()
                     {
-                      NomeGenere=Gen.Nome!
+                        NomeGenere = Gen.Nome!
                     };
                     GeneriList.Add(GenereGioco);
                 }
@@ -267,7 +267,36 @@ namespace AppVideoGameAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
 
             }
-        }[HttpGet]
+        }
+        [HttpGet]
+        [HttpGet]
+        [Route("GetGenereById")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetGenereById(int Id)
+        {
+            try
+            {
+                if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
+                Models.Genere Genere = _context.Generi.FirstOrDefault(x => x.Id == Id) ?? throw new ArgumentException(Constants.VideoGameNotFound);
+                DTO.VideoGame.ListaGeneriGioco GenereGioco = new()
+                {
+                    NomeGenere = Genere.Nome!,
+                    Id = Genere.Id
+                };
+                return Ok(JsonConvert.SerializeObject(GenereGioco, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
+            }
+        }
+        [HttpGet]
         [Route("GetAllGeneri")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -278,13 +307,13 @@ namespace AppVideoGameAPI.Controllers
             {
                 if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
 
-                List<Models.Genere> GenereData = [.. _context.Generi.Include(x=>x.VideoGiochi)];
+                List<Models.Genere> GenereData = [.. _context.Generi.Include(x => x.VideoGiochi)];
                 foreach (Models.Genere Gen in GenereData)
                 {
                     DTO.VideoGame.ListaGeneriGioco GenereGioco = new()
                     {
-                      NomeGenere=Gen.Nome!,
-                      Id=Gen.Id,
+                        NomeGenere = Gen.Nome!,
+                        Id = Gen.Id,
                     };
                     GenereGioco.VideoGiochi = [];
                     foreach (Models.VideoGioco el in Gen.VideoGiochi!)
@@ -306,20 +335,22 @@ namespace AppVideoGameAPI.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("CreateGenere")]
+        [HttpPost]
+        [Route("CreateEditGenere")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult CreateGenere(string NomeGenere)
+        public IActionResult CreateEditGenere(GenerePost ObjSent)
         {
             try
             {
                 if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
                 Genere GenereNew = new()
                 {
-                    Nome = NomeGenere,
+                    Nome = ObjSent.Nome,
+                    Id = ObjSent.Id,
                 };
-                _context.Generi.Add(GenereNew);
+                if (ObjSent.Id == 0) _context.Generi.Add(GenereNew);
+                else _context.Generi.Update(GenereNew);
                 _context.SaveChanges();
                 return Ok(JsonConvert.SerializeObject(GenereNew, new JsonSerializerSettings()
                 {
@@ -336,13 +367,13 @@ namespace AppVideoGameAPI.Controllers
         [Route("AssociareGenereGioco")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult AssociareGenereGioco(int GenereId,int GiocoId)
+        public IActionResult AssociareGenereGioco(int GenereId, int GiocoId)
         {
             try
             {
                 if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
-                Genere Genere = _context.Generi.FirstOrDefault(x=>x.Id == GenereId) ?? throw new ArgumentException(Constants.BadRequest);
-                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x=>x.Generi).FirstOrDefault(x=>x.Id==GiocoId) ?? throw new ArgumentException(Constants.VideoGameNotFound);
+                Genere Genere = _context.Generi.FirstOrDefault(x => x.Id == GenereId) ?? throw new ArgumentException(Constants.BadRequest);
+                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x => x.Generi).FirstOrDefault(x => x.Id == GiocoId) ?? throw new ArgumentException(Constants.VideoGameNotFound);
                 VideoGioco.Generi!.Add(Genere);
                 _context.SaveChanges();
                 return Ok(JsonConvert.SerializeObject(Genere, new JsonSerializerSettings()
@@ -354,6 +385,30 @@ namespace AppVideoGameAPI.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("DeleteGenere")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult DeleteGenere(int Id)
+        {
+            try
+            {
+                Genere Genere = _context.Generi.FirstOrDefault(a => a.Id == Id) ?? throw new ArgumentException(Constants.BadRequest);
+                _context.Generi.Remove(Genere);
+                _context.SaveChanges();
+                return Ok(JsonConvert.SerializeObject(Genere, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
             }
         }
 

@@ -156,6 +156,35 @@ namespace AppVideoGameAPI.Controllers
         }
         #endregion
         #region [ModelloConsole]
+        [HttpGet]
+        [Route("GetModelloById")]
+        [ProducesResponseType(typeof(List<DTO.ModelloConsoleList>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetModelloById(int id)
+        {
+            try
+            {
+                Models.ModelloConsole ModelloObj = _context.ModelliConsole
+                     .FirstOrDefault(x=>x.Id==id)
+                     ?? throw new ArgumentException(Constants.ConsoleNotFound);
+                    DTO.ModelloConsoleList ModelloConsole = new()
+                    {
+                        Id = ModelloObj.Id,
+                        Nome = ModelloObj.Nome,
+                        ConsoleId = ModelloObj.ConsoleId,
+                    };
+                return Ok(JsonConvert.SerializeObject(ModelloConsole, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
+            }
+        }
         //tutti i modelli console di una console
         [HttpGet]
         [Route("GetAllModelli")]

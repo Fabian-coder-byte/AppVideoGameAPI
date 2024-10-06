@@ -116,10 +116,8 @@ namespace AppVideoGameAPI.Data
              );
 
             builder.Entity<Colore>().HasData(
-           new Colore { Id = 1, NomeColore = "Rosso" },
-           new Colore { Id = 2, NomeColore = "Giallo" },
-           new Colore { Id = 3, NomeColore = "Bianco" },
-           new Colore { Id = 4, NomeColore = "Nero" }
+           new Colore { Id = 1, CodiceColore = "#ffffff" },
+           new Colore { Id = 2, CodiceColore = "#000000" }
            );
 
             builder.Entity<CaratteristichaTecnica>().HasData(
