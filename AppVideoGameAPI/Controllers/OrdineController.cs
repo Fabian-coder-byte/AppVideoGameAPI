@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using PoolBookingApp.Models;
+using System.Collections.Immutable;
 using System.Security.Cryptography;
 
 namespace AppVideoGameAPI.Controllers
@@ -102,7 +103,7 @@ namespace AppVideoGameAPI.Controllers
                     .Include(o => o.ItemOrdini)!
                         .ThenInclude(io => io.Stock)
                             .ThenInclude(s => s.VideoGioco)
-                            .Where(x=>x.UtenteId==userId)
+                            .Where(x=>x.UtenteId==userId && x.Data!=null)
                     ];
 
                 foreach (Models.Ordine Ord in Ordini)
@@ -120,6 +121,7 @@ namespace AppVideoGameAPI.Controllers
                             FormatoGioco = Item.Stock.Formato.Nome,
                             NomeVideogioco = Item.Stock.VideoGioco.Nome,
                             Quantita = Item.Quantita,
+                            Prezzo=Item.Stock.Prezzo,
 
                         };
                         AllegatoVideoGioco? allegatoVideoGioco = _context.AllegatiVideoGiochi.FirstOrDefault(a => a.VideoGiocoId == Item.Stock.VideoGiocoId);
@@ -171,6 +173,32 @@ namespace AppVideoGameAPI.Controllers
                 _context.Ordini.Add(NewOrder);
                 _context.SaveChanges();
                 return Ok(JsonConvert.SerializeObject(NewOrder, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
+            }
+        }
+
+        [HttpGet]
+        [Route("CreateOrdinazione")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public  IActionResult CreateOrdinazione(int OrdineId)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest();
+                Ordine Ordine = _context.Ordini.FirstOrDefault(x=>x.Id == OrdineId) ?? throw new ArgumentException("Errore");
+                Ordine.Data = DateTime.Today;
+                _context.SaveChanges();
+                return Ok(JsonConvert.SerializeObject(Ordine, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
                     Formatting = Formatting.Indented,
@@ -264,7 +292,7 @@ namespace AppVideoGameAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult GetAllCarrelloByUserId(string userId)
         {
-            List<OrdineItem> Results = [];
+            //List<OrdineItem> Results = [];
             try
             {
                 Models.Ordine Ordine =
@@ -282,7 +310,13 @@ namespace AppVideoGameAPI.Controllers
                             .Where(x => x.UtenteId == userId && x.Data == null).FirstOrDefault()
                             ?? throw new ArgumentException(Constants.BadRequest);
 
-                foreach (Models.ItemOrdine Item in Ordine.ItemOrdini)
+                DTO.Ordine.OrdineListUtente OrdineObj = new()
+                {
+                    DataOrdine = Ordine.Data,
+                    OrderId=Ordine.Id,
+                    Items = []
+                };
+                foreach (Models.ItemOrdine Item in Ordine.ItemOrdini!)
                 {
                     OrdineItem OrdineItem = new()
                     {
@@ -291,16 +325,35 @@ namespace AppVideoGameAPI.Controllers
                         NomeVideogioco = Item.Stock.VideoGioco.Nome,
                         Quantita = Item.Quantita,
                         Prezzo=Item.Stock.Prezzo,
-                        ItemId= Item.Id,
-                        OrderId=Item.OrdineId
+                        ItemId = Item.Id,
+                        OrderId=Item.OrdineId,
 
                     };
                     AllegatoVideoGioco? allegatoVideoGioco = _context.AllegatiVideoGiochi.FirstOrDefault(a => a.VideoGiocoId == Item.Stock.VideoGiocoId);
                     if (allegatoVideoGioco != null)
                         OrdineItem.CodeImage = Convert.ToBase64String(allegatoVideoGioco.Content!);
-                    Results.Add(OrdineItem);
+                    OrdineObj.Items.Add(OrdineItem);
                 }
-                return Ok(JsonConvert.SerializeObject(Results, new JsonSerializerSettings()
+
+                //foreach (Models.ItemOrdine Item in Ordine.ItemOrdini)
+                //{
+                //    OrdineItem OrdineItem = new()
+                //    {
+                //        ConsoleGioco = Item.Stock.Console.Nome,
+                //        FormatoGioco = Item.Stock.Formato.Nome,
+                //        NomeVideogioco = Item.Stock.VideoGioco.Nome,
+                //        Quantita = Item.Quantita,
+                //        Prezzo=Item.Stock.Prezzo,
+                //        ItemId= Item.Id,
+                //        OrderId=Item.OrdineId
+
+                //    };
+                //    AllegatoVideoGioco? allegatoVideoGioco = _context.AllegatiVideoGiochi.FirstOrDefault(a => a.VideoGiocoId == Item.Stock.VideoGiocoId);
+                //    if (allegatoVideoGioco != null)
+                //        OrdineItem.CodeImage = Convert.ToBase64String(allegatoVideoGioco.Content!);
+                //    Results.Add(OrdineItem);
+                //}
+                return Ok(JsonConvert.SerializeObject(OrdineObj, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
                     Formatting = Formatting.Indented,

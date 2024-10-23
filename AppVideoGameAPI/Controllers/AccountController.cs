@@ -57,7 +57,11 @@ namespace AppVideoGameAPI.Controllers
                 DataUser UtenteLoggato = await _userManager.FindByEmailAsync(user.Email!) ?? throw new ArgumentException(Constants.UtenteNontrovato);
                 UtenteLoggato.UltimoAccesso = DateTime.Now;
                 await _userManager.UpdateAsync(UtenteLoggato);
-                return Ok(token);
+                return Ok(JsonConvert.SerializeObject(token, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
             }
             catch (Exception ex)
             {
@@ -127,7 +131,9 @@ namespace AppVideoGameAPI.Controllers
                 {
                     Cognome=UtenteLOggato.Cognome!,
                     Email=email,
-                    Nome=UtenteLOggato.Nome!
+                    Nome=UtenteLOggato.Nome!,
+                    UserId=UtenteLOggato.Id
+                    
                 };
                 return Ok(JsonConvert.SerializeObject(DatiUtente, new JsonSerializerSettings()
                 {

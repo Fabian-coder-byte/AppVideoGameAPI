@@ -9,6 +9,7 @@ namespace AppVideoGameAPI.DTO.Ordine
     public class OrdineListUtente
     {
         public DateTime? DataOrdine { get; set; }
+        public int OrderId { get; set; }
         public List<Ordine.OrdineItem> Items { get; set; }
     }
 }

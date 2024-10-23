@@ -1,5 +1,6 @@
 ﻿using AppVideoGameAPI.Data;
 using AppVideoGameAPI.Models;
+using AppVideoGameAPI.Utilities;
 using AppVideoGameAPI.ViewModels;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -77,6 +78,28 @@ namespace AppVideoGameAPI.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
 
+            }
+        }
+        [HttpGet]
+        [Route("Delete")]
+        [ProducesResponseType(typeof(List<DTO.Colore>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                Colore Colore = _context.Colori.FirstOrDefault(x => x.Id == id) ?? throw new ArgumentException(Constants.ColoreNotFound);
+                _context.Colori.Remove(Colore);
+                _context.SaveChanges();
+                return Ok(JsonConvert.SerializeObject(Colore, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
     }
