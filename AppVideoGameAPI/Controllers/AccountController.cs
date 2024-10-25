@@ -125,16 +125,20 @@ namespace AppVideoGameAPI.Controllers
         {
             try
             {
-                var email = User.Identity.Name; // Ottiene l'email dal claim del token
+                string? email = (User?.Identity?.Name) ?? throw new ArgumentNullException("Utente non trovato");
+                string? ruolo= (User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) ?? throw new ArgumentException("Wuolo non trovato");
                 DataUser UtenteLOggato = await _userManager.FindByEmailAsync(email) ?? throw new ArgumentException("Errore Utente");
                 DatiUtente DatiUtente = new()
                 {
                     Cognome=UtenteLOggato.Cognome!,
                     Email=email,
                     Nome=UtenteLOggato.Nome!,
-                    UserId=UtenteLOggato.Id
-                    
+                    UserId=UtenteLOggato.Id,
+                    Ruolo=ruolo
                 };
+                AllegatoUtente? allegatoUtente = _context.AllegatiUtente.FirstOrDefault(a => a.UserId == UtenteLOggato.Id);
+                if (allegatoUtente != null)
+                    DatiUtente.CodeImage = Convert.ToBase64String(allegatoUtente.Content!);
                 return Ok(JsonConvert.SerializeObject(DatiUtente, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,

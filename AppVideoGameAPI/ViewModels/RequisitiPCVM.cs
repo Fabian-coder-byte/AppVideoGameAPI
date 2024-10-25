@@ -4,14 +4,10 @@ namespace AppVideoGameAPI.ViewModels
     public class RequisitiPCVM
     {
         public int Id { get; set; }
-        public string? OS { get; set; }
-        public string? Processor { get; set; }
-        public string? Memory { get; set; }
-        public string? Graphics { get; set; }
-        public string? DirectX { get; set; }
-        public string? Storage { get; set; }
-        public string? AdditionalNotes { get; set; }
-        public int LivelloRichiestoId { get; set; }
-        public int VideoGiocoId { get; set; }
+        public string CPU { get; set; }
+        public string GPU { get; set; }
+        public string Memoria { get; set; }
+        public string SchedaArchiviazione { get; set; }
+        public string Note { get; set; }
     }
 }

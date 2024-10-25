@@ -7,5 +7,6 @@ namespace AppVideoGameAPI.DTO.VideoGame
         public string? Descrizione { get; set; }
         public DateOnly? DataRilascio { get; set; }
         public int CasaProduttriceId { get; set; }
+        public int CaratteristicaTecnicaId { get; set; }
     }
 }

@@ -225,11 +225,19 @@ namespace AppVideoGameAPI.Controllers
                 Ordine? CarrelloGiaPresente = _context.Ordini.Include(x=>x.ItemOrdini).FirstOrDefault(x => x.DataUser == Utente && x.Data == null);
                 if (CarrelloGiaPresente != null)
                 {
-                    CarrelloGiaPresente.ItemOrdini.Add(new()
+                    ItemOrdine? item = CarrelloGiaPresente.ItemOrdini!.FirstOrDefault(x => x.StockId == ObjSent.StockId);
+                    if (item != null) {
+                        item.Quantita++;
+                    }
+                    else
                     {
-                        StockId = ObjSent.StockId,
-                        Quantita = ObjSent.Quantita,
-                    });
+                        CarrelloGiaPresente.ItemOrdini!.Add(new()
+                        {
+                            StockId = ObjSent.StockId,
+                            Quantita = ObjSent.Quantita,
+                        });
+                    }
+                  
                 }
                 else
                 {

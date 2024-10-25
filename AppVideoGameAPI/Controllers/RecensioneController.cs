@@ -133,6 +133,7 @@ namespace AppVideoGameAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult MediaVotiId(int id)
         {
+            double MediaVotiRecensioni = 0;
             try
             {
                 if (!ModelState.IsValid)
@@ -143,8 +144,10 @@ namespace AppVideoGameAPI.Controllers
                     Include(x => x.VideoGioco).
                     Include(x => x.Utente).
                     Where(x=>x.VideoGiocoId==id)];
-
-                double MediaVotiRecensioni = RecensioniList.Average(x => x.Voto);
+                if (RecensioniList.Any())
+                {
+                    MediaVotiRecensioni = RecensioniList.Average(x => x.Voto);
+                }
                 return Ok(MediaVotiRecensioni);
             }
             catch (Exception ex)

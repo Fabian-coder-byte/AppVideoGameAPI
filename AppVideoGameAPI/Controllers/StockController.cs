@@ -123,7 +123,7 @@ namespace AppVideoGameAPI.Controllers
                     DataRilascio=StockVideoGame.VideoGioco.DataRilascio
                     
                 };
-                List<AllegatoVideoGioco>? allegatiVideoGiochi = _context.AllegatiVideoGiochi.Where(a => a.VideoGiocoId == StockVideoGame.Id).ToList();
+                List<AllegatoVideoGioco>? allegatiVideoGiochi = _context.AllegatiVideoGiochi.Where(a => a.VideoGiocoId == StockVideoGame.VideoGiocoId).ToList();
                 if (allegatiVideoGiochi.Count != 0)
                 {
                     VideoGioco.CodeImages = [];
