@@ -75,8 +75,7 @@ namespace AppVideoGameAPI.Controllers
                     CasaProduttriceId = ObjSent.CasaProduttriceId,
                     DataRilascio = ObjSent.DataRilascio,
                     Descrizione = ObjSent.Descrizione,
-                    Nome = ObjSent.Nome,
-                    CaratteristicaTecnicaId = ObjSent.CaratteristicaTecnicaId
+                    Nome = ObjSent.Nome
                 };
                 _context.VideoGiochi.Add(NewVideoGame);
                 _context.SaveChanges();
@@ -115,6 +114,7 @@ namespace AppVideoGameAPI.Controllers
                         Content = reader.ReadBytes((int)el.Length),
                         NomeFile = el.FileName,
                         VideoGiocoId = VideoGioco.Id,
+                        TipoAllegatoId=ObjSent.TipoAllegatoId
                     });
                 }
                 _context.SaveChanges();
@@ -210,12 +210,12 @@ namespace AppVideoGameAPI.Controllers
             try
             {
                 if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
-                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x=>x.RequisitoTecnico).FirstOrDefault(x => x.Id == Id)
+                Models.VideoGioco VideoGioco = _context.VideoGiochi.FirstOrDefault(x => x.Id == Id)
                     ?? throw new ArgumentException(Constants.VideoGameNotFound);
                 Models.CaratteristichaTecnica? RequisitoVideoGame = VideoGioco.RequisitoTecnico;
                 if (RequisitoVideoGame != null)
                 {
-                    RequisitiPCObj = new()
+                     RequisitiPCObj = new()
                     {
                         Id = RequisitoVideoGame!.Id,
                         CPU = RequisitoVideoGame.CPU,
@@ -226,77 +226,6 @@ namespace AppVideoGameAPI.Controllers
                     };
                 }
                 return Ok(JsonConvert.SerializeObject(RequisitiPCObj, new JsonSerializerSettings()
-                {
-                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
-                    Formatting = Formatting.Indented,
-                }));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-
-            }
-        }
-        [HttpPost]
-        [Route("CreateRequisitoPc")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult CreateRequisitoPc(RequisitiPCVM ObjSent)
-        {
-            try
-            {
-                if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
-                Models.CaratteristichaTecnica CaratteristicaTecnica = new()
-                {
-                    CPU = ObjSent.CPU,
-                    GPU = ObjSent.GPU,
-                    Memoria = ObjSent.Memoria,
-                    AdditionalNotes = ObjSent.Note,
-                    Id = ObjSent.Id,
-                    SchedaArchiviazione = ObjSent.SchedaArchiviazione
-                };
-                _context.CaratteristicheTecniche.Add(CaratteristicaTecnica);
-                _context.SaveChanges();
-                return Ok(JsonConvert.SerializeObject(CaratteristicaTecnica, new JsonSerializerSettings()
-                {
-                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
-                    Formatting = Formatting.Indented,
-                }));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
-        [HttpGet]
-        [Route("AssociaRequisito")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult AssociaRequisito(int CarTecnicaId, int ElAssocId, int QualeAssocio)
-        {
-            try
-            {
-                if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
-                Models.CaratteristichaTecnica CaratterTecnica = _context.CaratteristicheTecniche.FirstOrDefault(x => x.Id == CarTecnicaId)
-                    ?? throw new ArgumentException(Constants.VideoGameNotFound);
-                switch (QualeAssocio)
-                {
-                    //VideoGioco
-                    case 1:
-                        Models.VideoGioco VideoGioco = _context.VideoGiochi.FirstOrDefault(x=>x.Id==ElAssocId)
-                            ?? throw new ArgumentException(Constants.VideoGameNotFound);
-                        VideoGioco.RequisitoTecnico = CaratterTecnica;
-                        break;
-                        //Console
-                    case 2:
-                        Models.StockConsole Console = _context.StockConsoles.FirstOrDefault(x => x.Id == ElAssocId)
-                           ?? throw new ArgumentException(Constants.ConsoleNotFound);
-                        Console.CaratteristichaTecnica = CaratterTecnica;
-                        break;
-                    default:
-                        break;
-                }
-                return Ok(JsonConvert.SerializeObject(CaratterTecnica, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
                     Formatting = Formatting.Indented,

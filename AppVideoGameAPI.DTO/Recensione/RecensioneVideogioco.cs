@@ -8,10 +8,12 @@ namespace AppVideoGameAPI.DTO.Recensione
 {
     public class RecensioneVideogioco
     {
-        public string Descrizione { get; set; }
+        public int Id { get; set; }
+        public string? Descrizione { get; set; }
         public double Voto { get; set; }
         public string NomeUtente { get; set; }
         public string ImmagineUtente { get; set; }
         public DateTime Data { get; set; }
+        public string UserId { get; set; }
     }
 }

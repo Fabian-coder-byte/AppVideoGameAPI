@@ -63,7 +63,8 @@ namespace AppVideoGameAPI.Controllers
                             ConsoleGioco = Item.Stock.Console.Nome,
                             FormatoGioco = Item.Stock.Formato.Nome,
                             NomeVideogioco = Item.Stock.VideoGioco.Nome,
-                            Quantita = Item.Quantita
+                            Quantita = Item.Quantita,
+                            Prezzo = Item.Prezzo
                         });
                     }
                     results.Add(Ordine);
@@ -111,7 +112,8 @@ namespace AppVideoGameAPI.Controllers
                     DTO.Ordine.OrdineListUtente Ordine = new()
                     {
                         DataOrdine = Ord.Data,
-                        Items = []
+                        Items = [],
+                        OrderId = Ord.Id
                     };
                     foreach (Models.ItemOrdine Item in Ord.ItemOrdini)
                     {
@@ -121,7 +123,8 @@ namespace AppVideoGameAPI.Controllers
                             FormatoGioco = Item.Stock.Formato.Nome,
                             NomeVideogioco = Item.Stock.VideoGioco.Nome,
                             Quantita = Item.Quantita,
-                            Prezzo=Item.Stock.Prezzo,
+                            Prezzo = Item.Stock.Prezzo,
+                            ItemId = Item.Id
 
                         };
                         AllegatoVideoGioco? allegatoVideoGioco = _context.AllegatiVideoGiochi.FirstOrDefault(a => a.VideoGiocoId == Item.Stock.VideoGiocoId);
@@ -154,24 +157,59 @@ namespace AppVideoGameAPI.Controllers
             try
             {
                 if (!TryValidateModel(ObjSent)) return BadRequest();
-                DataUser? Utente = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == ObjSent.UtenteId);
+                DataUser Utente = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == ObjSent.UtenteId)
+                    ?? throw new ArgumentException(Constants.UtenteNontrovato);
                 Ordine NewOrder = new()
                 {
                     Data = ObjSent.Data,
                     DataUser = Utente,
+                    MetodoPagamentoId = ObjSent.MetodoPagamentoId,
+
                 };
-                NewOrder.ItemOrdini = [];
-                foreach (ItemOrdineVM Ord in ObjSent.Items)
+                CarrelloOrdine CarrelloOrdine = await _context.CarrelloOrdini.Include(x => x.ItemsCarrello).FirstOrDefaultAsync(x => x.UtenteId == Utente.Id)
+                    ?? throw new ArgumentException(Constants.CarrelloNotFound);
+                MetodoPagamento? MetodoPagamento = await _context.MetodoPagamento.FirstOrDefaultAsync(x => x.Id == ObjSent.MetodoPagamentoId);
+                double TotaleSpesa = CarrelloOrdine.ItemsCarrello!.Sum(x => x.Quantita * x.Prezzo);
+                double saldoDisponibile = MetodoPagamento?.SaldoDisponibile ?? Utente.SaldoDisponibile;
+                if (saldoDisponibile < TotaleSpesa)
                 {
+                    throw new ArgumentException(Constants.DenaroInsufficente);
+                }
+
+                if (MetodoPagamento != null)
+                { 
+                    if (MetodoPagamento.DataScadenza < DateOnly.FromDateTime(DateTime.Today)) throw new ArgumentException(Constants.CartaScaduta);
+                    MetodoPagamento.SaldoDisponibile -= TotaleSpesa;
+                }
+                else
+                {
+                    Utente.SaldoDisponibile -= TotaleSpesa;
+                }
+                NewOrder.ItemOrdini = [];
+                foreach (ItemCarrello itemCar in CarrelloOrdine.ItemsCarrello!)
+                {
+                    bool isStockAvailable = await _context.Stocks
+                    .Where(x => x.Id == itemCar.StockId)
+                    .AnyAsync(x => x.Quantita >= itemCar.Quantita);
+                    if (!isStockAvailable)
+                    {
+                        throw new ArgumentException(Constants.QuantitaInsufficente);
+                    }
                     NewOrder.ItemOrdini.Add(new()
                     {
-                        Quantita = Ord.Quantita,
-                        StockId = Ord.StockId,
+                        Quantita = itemCar.Quantita,
+                        StockId = itemCar.StockId,
                         Ordine = NewOrder,
+                        Prezzo = itemCar.Prezzo
                     });
                 }
                 _context.Ordini.Add(NewOrder);
-                _context.SaveChanges();
+                foreach (ItemCarrello item in CarrelloOrdine.ItemsCarrello.ToList())
+                {
+                    _context.ItemsCarrello.Remove(item);
+                }
+                CarrelloOrdine.ItemsCarrello.Clear();
+                await _context.SaveChangesAsync();
                 return Ok(JsonConvert.SerializeObject(NewOrder, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
@@ -186,75 +224,53 @@ namespace AppVideoGameAPI.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("CreateOrdinazione")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public  IActionResult CreateOrdinazione(int OrdineId)
-        {
-            try
-            {
-                if (!ModelState.IsValid) return BadRequest();
-                Ordine Ordine = _context.Ordini.FirstOrDefault(x=>x.Id == OrdineId) ?? throw new ArgumentException("Errore");
-                Ordine.Data = DateTime.Today;
-                _context.SaveChanges();
-                return Ok(JsonConvert.SerializeObject(Ordine, new JsonSerializerSettings()
-                {
-                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
-                    Formatting = Formatting.Indented,
-                }));
-
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-
-            }
-        }
-
         [HttpPost]
-        [Route("CarrelloOrdine")]
+        [Route("AddItemToCarrello")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CarrelloOrdine([FromBody] AddOrdineCarrelloVM ObjSent)
+        public async Task<IActionResult> AddItemToCarrello([FromBody] AddOrdineCarrelloVM ObjSent)
         {
             try
             {
                 if (!TryValidateModel(ObjSent)) return BadRequest();
-                DataUser? Utente = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == ObjSent.UtenteId);
-                Ordine? CarrelloGiaPresente = _context.Ordini.Include(x=>x.ItemOrdini).FirstOrDefault(x => x.DataUser == Utente && x.Data == null);
+                StockVideoGioco StockVideoGame = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == ObjSent.StockId)
+                    ?? throw new ArgumentException(Constants.VideoGameNotFound);
+                DataUser Utente = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == ObjSent.UtenteId) ?? throw new ArgumentException(Constants.UtenteNontrovato);
+                CarrelloOrdine? CarrelloGiaPresente = await _context.CarrelloOrdini.Include(x => x.ItemsCarrello).FirstOrDefaultAsync(x => x.UtenteId == Utente.Id);
                 if (CarrelloGiaPresente != null)
                 {
-                    ItemOrdine? item = CarrelloGiaPresente.ItemOrdini!.FirstOrDefault(x => x.StockId == ObjSent.StockId);
-                    if (item != null) {
-                        item.Quantita++;
+                    ItemCarrello? VideoGamePresente = CarrelloGiaPresente.ItemsCarrello!.FirstOrDefault(x => x.StockId == StockVideoGame.Id);
+                    if (VideoGamePresente != null)
+                    {
+                        VideoGamePresente.Quantita += ObjSent.Quantita;
                     }
                     else
                     {
-                        CarrelloGiaPresente.ItemOrdini!.Add(new()
+                        CarrelloGiaPresente.ItemsCarrello!.Add(new()
                         {
                             StockId = ObjSent.StockId,
                             Quantita = ObjSent.Quantita,
+                            Prezzo=StockVideoGame.Prezzo,
                         });
                     }
-                  
                 }
                 else
                 {
-                    Ordine NewOrder = new()
+                    CarrelloOrdine NewCarrello = new()
                     {
                         DataUser = Utente,
                     };
-                    NewOrder.ItemOrdini = [];
-                    NewOrder.ItemOrdini.Add(new()
+                    NewCarrello.ItemsCarrello = [];
+                    NewCarrello.ItemsCarrello.Add(new()
                     {
                         Quantita = ObjSent.Quantita,
-                        StockId = ObjSent.StockId,
-                        Ordine = NewOrder,
+                        StockId = StockVideoGame.Id,
+                        Prezzo = StockVideoGame.Prezzo,
+                        CarrelloOrdine = NewCarrello,
                     });
-                    _context.Ordini.Add(NewOrder);
+                    _context.CarrelloOrdini.Add(NewCarrello);
                 }
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return Ok(JsonConvert.SerializeObject(ObjSent, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
@@ -272,16 +288,19 @@ namespace AppVideoGameAPI.Controllers
         [Route("RemoveItemCarrello")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public  IActionResult RemoveItemCarrello(int OrdineId,int ItemId)
+        public IActionResult RemoveItemCarrello(int CarrelloId, int ItemId)
         {
             try
             {
                 if (!ModelState.IsValid) return BadRequest();
-                Ordine? Ordine = _context.Ordini.Include(x => x.ItemOrdini).FirstOrDefault(x => x.Id == OrdineId) ?? throw new ArgumentException(Constants.BadRequest);
-                ItemOrdine ItemOrdine = Ordine.ItemOrdini!.Where(x => x.Id == ItemId).FirstOrDefault() ?? throw new ArgumentException(Constants.BadRequest);
-                _context.ItemOrdini.Remove(ItemOrdine);
+                CarrelloOrdine CarrelloOrdine = _context.CarrelloOrdini.Include(x => x.ItemsCarrello).FirstOrDefault(x => x.Id == CarrelloId)
+                    ?? throw new ArgumentException(Constants.BadRequest);
+                ItemCarrello Itemcarrello = CarrelloOrdine.ItemsCarrello!.FirstOrDefault(x => x.Id == ItemId)
+                    ?? throw new ArgumentException(Constants.BadRequest);
+                CarrelloOrdine.ItemsCarrello!.Remove(Itemcarrello);
+                _context.ItemsCarrello.Remove(Itemcarrello);
                 _context.SaveChanges();
-                return Ok(JsonConvert.SerializeObject(ItemOrdine, new JsonSerializerSettings()
+                return Ok(JsonConvert.SerializeObject(Itemcarrello, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
                     Formatting = Formatting.Indented,
@@ -300,68 +319,47 @@ namespace AppVideoGameAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult GetAllCarrelloByUserId(string userId)
         {
-            //List<OrdineItem> Results = [];
             try
             {
-                Models.Ordine Ordine =
-                    _context.Ordini.
+                Models.CarrelloOrdine? CarrelloOrdine =
+                    _context.CarrelloOrdini.
                     Include(x => x.DataUser)
-                   .Include(o => o.ItemOrdini)!
+                   .Include(o => o.ItemsCarrello)!
                         .ThenInclude(io => io.Stock)
                             .ThenInclude(s => s.Console)
-                    .Include(o => o.ItemOrdini)!
+                    .Include(o => o.ItemsCarrello)!
                         .ThenInclude(io => io.Stock)
                             .ThenInclude(s => s.Formato)
-                    .Include(o => o.ItemOrdini)!
+                    .Include(o => o.ItemsCarrello)!
                         .ThenInclude(io => io.Stock)
                             .ThenInclude(s => s.VideoGioco)
-                            .Where(x => x.UtenteId == userId && x.Data == null).FirstOrDefault()
-                            ?? throw new ArgumentException(Constants.BadRequest);
-
-                DTO.Ordine.OrdineListUtente OrdineObj = new()
+                            .Where(x => x.UtenteId == userId).FirstOrDefault();
+                DTO.Ordine.CarrelloList CarrelloObj = new()
                 {
-                    DataOrdine = Ordine.Data,
-                    OrderId=Ordine.Id,
+                    CarrelloId = CarrelloOrdine!=null? CarrelloOrdine.Id:0,
                     Items = []
                 };
-                foreach (Models.ItemOrdine Item in Ordine.ItemOrdini!)
+                if (CarrelloOrdine != null)
                 {
-                    OrdineItem OrdineItem = new()
+                    foreach (Models.ItemCarrello Item in CarrelloOrdine.ItemsCarrello!)
                     {
-                        ConsoleGioco = Item.Stock.Console.Nome,
-                        FormatoGioco = Item.Stock.Formato.Nome,
-                        NomeVideogioco = Item.Stock.VideoGioco.Nome,
-                        Quantita = Item.Quantita,
-                        Prezzo=Item.Stock.Prezzo,
-                        ItemId = Item.Id,
-                        OrderId=Item.OrdineId,
-
-                    };
-                    AllegatoVideoGioco? allegatoVideoGioco = _context.AllegatiVideoGiochi.FirstOrDefault(a => a.VideoGiocoId == Item.Stock.VideoGiocoId);
-                    if (allegatoVideoGioco != null)
-                        OrdineItem.CodeImage = Convert.ToBase64String(allegatoVideoGioco.Content!);
-                    OrdineObj.Items.Add(OrdineItem);
+                        OrdineItem OrdineItem = new()
+                        {
+                            ConsoleGioco = Item.Stock.Console.Nome,
+                            FormatoGioco = Item.Stock.Formato.Nome,
+                            NomeVideogioco = Item.Stock.VideoGioco.Nome,
+                            Quantita = Item.Quantita,
+                            Prezzo = Item.Stock.Prezzo,
+                            ItemId = Item.Id,
+                        };
+                        AllegatoVideoGioco? allegatoVideoGioco = _context.AllegatiVideoGiochi.FirstOrDefault(a => a.VideoGiocoId == Item.Stock.VideoGiocoId);
+                        if (allegatoVideoGioco != null)
+                            OrdineItem.CodeImage = Convert.ToBase64String(allegatoVideoGioco.Content!);
+                        CarrelloObj.Items.Add(OrdineItem);
+                    }
                 }
-
-                //foreach (Models.ItemOrdine Item in Ordine.ItemOrdini)
-                //{
-                //    OrdineItem OrdineItem = new()
-                //    {
-                //        ConsoleGioco = Item.Stock.Console.Nome,
-                //        FormatoGioco = Item.Stock.Formato.Nome,
-                //        NomeVideogioco = Item.Stock.VideoGioco.Nome,
-                //        Quantita = Item.Quantita,
-                //        Prezzo=Item.Stock.Prezzo,
-                //        ItemId= Item.Id,
-                //        OrderId=Item.OrdineId
-
-                //    };
-                //    AllegatoVideoGioco? allegatoVideoGioco = _context.AllegatiVideoGiochi.FirstOrDefault(a => a.VideoGiocoId == Item.Stock.VideoGiocoId);
-                //    if (allegatoVideoGioco != null)
-                //        OrdineItem.CodeImage = Convert.ToBase64String(allegatoVideoGioco.Content!);
-                //    Results.Add(OrdineItem);
-                //}
-                return Ok(JsonConvert.SerializeObject(OrdineObj, new JsonSerializerSettings()
+             
+                return Ok(JsonConvert.SerializeObject(CarrelloObj, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
                     Formatting = Formatting.Indented,
@@ -372,5 +370,7 @@ namespace AppVideoGameAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
+
     }
 }

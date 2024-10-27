@@ -10,5 +10,9 @@
         public const string RequisitiPCError = "C'è stato un problema con il caricamento dei requsiti PC";
         public const string ConsoleNotFound = "Non è stata trovata alcuna console";
         public const string ColoreNotFound = "Non è stata trovato alcuna colore";
+        public const string CarrelloNotFound = "Non è stata trovato alcun carrello per l'utente selezionato";
+        public const string QuantitaInsufficente = "La Quanità di un elemento è superire a quella attualemente disponibile nel magazzino";
+        public const string DenaroInsufficente = "Saldo insufficente sul conto";
+        public const string CartaScaduta = "La Carta Selezionata è Scaduta";
     }
 }

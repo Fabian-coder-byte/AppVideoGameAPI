@@ -17,5 +17,9 @@ namespace PoolBookingApp.Models
         [Required]
         [ForeignKey(nameof(VideoGiocoId))]
         public VideoGioco? VideoGioco { get; set; }
+        public int TipoAllegatoId { get; set; }
+        [ForeignKey(nameof(TipoAllegatoId))]
+        [Required]
+        public TipoAllegato? TIpoAllegato { get; set; }
     }
 }

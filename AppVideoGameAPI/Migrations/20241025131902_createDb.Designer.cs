@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppVideoGameAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241003104644_updateConsoleTable")]
-    partial class updateConsoleTable
+    [Migration("20241025131902_createDb")]
+    partial class createDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,15 +41,51 @@ namespace AppVideoGameAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TipoAllegatoId")
+                        .HasColumnType("int");
+
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TipoAllegatoId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("AllegatiUtente");
+                });
+
+            modelBuilder.Entity("AppVideoGameAPI.Models.AllegatoVideoGiocoStock", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<byte[]>("Content")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("NomeFile")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TipoAllegatoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VideoGiocoStockId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TipoAllegatoId");
+
+                    b.HasIndex("VideoGiocoStockId");
+
+                    b.ToTable("AllegatiVideoGiochiStocks");
                 });
 
             modelBuilder.Entity("AppVideoGameAPI.Models.CaratteristichaTecnica", b =>
@@ -97,6 +133,26 @@ namespace AppVideoGameAPI.Migrations
                             Memoria = "16Gb",
                             SchedaArchiviazione = "1024"
                         });
+                });
+
+            modelBuilder.Entity("AppVideoGameAPI.Models.CarrelloOrdine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("UtenteId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UtenteId");
+
+                    b.ToTable("CarrelloOrdini");
                 });
 
             modelBuilder.Entity("AppVideoGameAPI.Models.CasaProduttrice", b =>
@@ -152,7 +208,7 @@ namespace AppVideoGameAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("NomeColore")
+                    b.Property<string>("CodiceColore")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -164,22 +220,12 @@ namespace AppVideoGameAPI.Migrations
                         new
                         {
                             Id = 1,
-                            NomeColore = "Rosso"
+                            CodiceColore = "#ffffff"
                         },
                         new
                         {
                             Id = 2,
-                            NomeColore = "Giallo"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            NomeColore = "Bianco"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            NomeColore = "Nero"
+                            CodiceColore = "#000000"
                         });
                 });
 
@@ -196,12 +242,7 @@ namespace AppVideoGameAPI.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<int?>("VideoGiocoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("VideoGiocoId");
 
                     b.ToTable("Consoles");
 
@@ -209,12 +250,12 @@ namespace AppVideoGameAPI.Migrations
                         new
                         {
                             Id = 1,
-                            Nome = "Xbox 360"
+                            Nome = "Xbox"
                         },
                         new
                         {
                             Id = 2,
-                            Nome = "PlayStation 4"
+                            Nome = "PlayStation"
                         },
                         new
                         {
@@ -236,6 +277,9 @@ namespace AppVideoGameAPI.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<bool>("AccettaUsoDati")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Cognome")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -251,10 +295,6 @@ namespace AppVideoGameAPI.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("IndirizzoUtente")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -284,6 +324,9 @@ namespace AppVideoGameAPI.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<double>("SaldoDisponibile")
+                        .HasColumnType("float");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -312,42 +355,75 @@ namespace AppVideoGameAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "db4e80d6-846b-43d8-bd2a-19223a13acf0",
+                            Id = "e896fe41-1823-4d0e-96cc-f473b1db1773",
                             AccessFailedCount = 0,
+                            AccettaUsoDati = false,
                             Cognome = "Sartini",
-                            ConcurrencyStamp = "b3b96a9d-0e69-4347-a5e8-3da10c45a7aa",
+                            ConcurrencyStamp = "54020900-0fc1-4d5c-bbf2-debf79e4dad7",
                             Email = "fabiansartini@gmail.com",
                             EmailConfirmed = true,
-                            IndirizzoUtente = "Via Pragelato 20",
                             LockoutEnabled = false,
                             Nome = "Fabian",
                             NormalizedEmail = "FABIANSARTINI@GMAIL.COM",
                             NormalizedUserName = "FABIANSARTINI@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEPRt8MWoLritLMQ12QaKa6InvpcD7vuzSkpwCOXyZ8y7plOL9qgSlj8HN/1uLgYbLg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEM8x0bvGJfA31pSR57f+Qhz36dqOUUkirIAs3AYlsrWxLpJ4643j7hjWO4dJKGw2BQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "6f944fbe-c155-49c7-96c3-3e0fc463d08d",
+                            SaldoDisponibile = 200.0,
+                            SecurityStamp = "40085141-5b8c-4599-ac92-39c91e7a5c60",
                             TwoFactorEnabled = false,
                             UserName = "fabiansartini@gmail.com"
                         },
                         new
                         {
-                            Id = "c6c36be1-5fc6-4274-b459-c8832bd5acba",
+                            Id = "f57ab10e-1410-4a11-b309-3d49e283d56a",
                             AccessFailedCount = 0,
+                            AccettaUsoDati = false,
                             Cognome = "Sartini",
-                            ConcurrencyStamp = "2ebe633e-fb95-427e-9d84-cf38c5751ebb",
+                            ConcurrencyStamp = "8b7fb0b6-f5fb-4951-a1cb-d70995031d9e",
                             Email = "spaceplayer98@gmail.com",
                             EmailConfirmed = true,
-                            IndirizzoUtente = "Via Russo 238",
                             LockoutEnabled = false,
                             Nome = "Fabian",
                             NormalizedEmail = "SPACEPLAYER98@GMAIL.COM",
                             NormalizedUserName = "SPACEPLAYER98@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDcrsjuMBRroS35puuJhzG0Us/yYtDf4Ptm7geLjE7eqrJ3ZfKhH05LHzkv7z0wNHg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAELZoP79LLoC05s4zWyXAIOAwu+rgz+Qmzf9/Kc9bWUpgv/8XqZ4e7xVG6xv71EAQWA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "ab21527c-fab1-4d52-9d21-fadd9250a6dd",
+                            SaldoDisponibile = 300.0,
+                            SecurityStamp = "12caa113-d0c9-4371-a698-10c4b682a9d1",
                             TwoFactorEnabled = false,
                             UserName = "spaceplayer98@gmail.com"
                         });
+                });
+
+            modelBuilder.Entity("AppVideoGameAPI.Models.ElementoProferito", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataInserimento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("StockId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StockVideoGiocoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StockVideoGiocoId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ElementoProferito");
                 });
 
             modelBuilder.Entity("AppVideoGameAPI.Models.FormatoGioco", b =>
@@ -458,6 +534,67 @@ namespace AppVideoGameAPI.Migrations
                         });
                 });
 
+            modelBuilder.Entity("AppVideoGameAPI.Models.IndirizzoResidenza", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DataUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("NomeCitta")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("NomeIndirizzo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DataUserId");
+
+                    b.ToTable("IndirizzoResidenza");
+                });
+
+            modelBuilder.Entity("AppVideoGameAPI.Models.ItemCarrello", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CarrelloId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Prezzo")
+                        .HasColumnType("float");
+
+                    b.Property<short>("Quantita")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("StockId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarrelloId");
+
+                    b.HasIndex("StockId");
+
+                    b.ToTable("ItemsCarrello");
+                });
+
             modelBuilder.Entity("AppVideoGameAPI.Models.ItemOrdine", b =>
                 {
                     b.Property<int>("Id")
@@ -468,6 +605,9 @@ namespace AppVideoGameAPI.Migrations
 
                     b.Property<int>("OrdineId")
                         .HasColumnType("int");
+
+                    b.Property<double>("Prezzo")
+                        .HasColumnType("float");
 
                     b.Property<short>("Quantita")
                         .HasColumnType("smallint");
@@ -482,6 +622,46 @@ namespace AppVideoGameAPI.Migrations
                     b.HasIndex("StockId");
 
                     b.ToTable("ItemOrdini");
+                });
+
+            modelBuilder.Entity("AppVideoGameAPI.Models.MetodoPagamento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CVC")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("DataScadenza")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Instatario")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NumeroCarta")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("SaldoDisponibile")
+                        .HasColumnType("float");
+
+                    b.Property<int>("TipoPagamentoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TipoPagamentoId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("MetodoPagamento");
                 });
 
             modelBuilder.Entity("AppVideoGameAPI.Models.ModelloConsole", b =>
@@ -504,6 +684,38 @@ namespace AppVideoGameAPI.Migrations
                     b.HasIndex("ConsoleId");
 
                     b.ToTable("ModelliConsole");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ConsoleId = 1,
+                            Nome = "Xbox 360"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ConsoleId = 2,
+                            Nome = "PlayStation 4"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ConsoleId = 2,
+                            Nome = "PlayStation 5"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ConsoleId = 2,
+                            Nome = "PlayStation 3"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ConsoleId = 3,
+                            Nome = "Kata GF66"
+                        });
                 });
 
             modelBuilder.Entity("AppVideoGameAPI.Models.Ordine", b =>
@@ -517,12 +729,17 @@ namespace AppVideoGameAPI.Migrations
                     b.Property<DateTime?>("Data")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("MetodoPagamentoId")
+                        .HasColumnType("int");
+
                     b.Property<string>("UtenteId")
                         .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MetodoPagamentoId");
 
                     b.HasIndex("UtenteId");
 
@@ -634,6 +851,67 @@ namespace AppVideoGameAPI.Migrations
                     b.ToTable("Stocks");
                 });
 
+            modelBuilder.Entity("AppVideoGameAPI.Models.TipoAllegato", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TipiAllegati");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nome = "Foto Profilo"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Nome = "Immagini Slider"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Nome = "Video Trailer"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Nome = "Documentazione Gioco"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Nome = "Foto Gioco"
+                        });
+                });
+
+            modelBuilder.Entity("AppVideoGameAPI.Models.TipoPagamento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TipoPagemento");
+                });
+
             modelBuilder.Entity("AppVideoGameAPI.Models.VideoGioco", b =>
                 {
                     b.Property<int>("Id")
@@ -654,9 +932,6 @@ namespace AppVideoGameAPI.Migrations
                     b.Property<string>("Descrizione")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ModelloConsoleId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -667,8 +942,6 @@ namespace AppVideoGameAPI.Migrations
                     b.HasIndex("CaratteristicaTecnicaId");
 
                     b.HasIndex("CasaProduttriceId");
-
-                    b.HasIndex("ModelloConsoleId");
 
                     b.ToTable("VideoGiochi");
 
@@ -844,12 +1117,12 @@ namespace AppVideoGameAPI.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "db4e80d6-846b-43d8-bd2a-19223a13acf0",
+                            UserId = "e896fe41-1823-4d0e-96cc-f473b1db1773",
                             RoleId = "2"
                         },
                         new
                         {
-                            UserId = "c6c36be1-5fc6-4274-b459-c8832bd5acba",
+                            UserId = "f57ab10e-1410-4a11-b309-3d49e283d56a",
                             RoleId = "1"
                         });
                 });
@@ -873,6 +1146,21 @@ namespace AppVideoGameAPI.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ModelloConsoleVideoGioco", b =>
+                {
+                    b.Property<int>("ConsolesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VideoGiochiId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ConsolesId", "VideoGiochiId");
+
+                    b.HasIndex("VideoGiochiId");
+
+                    b.ToTable("ModelloConsoleVideoGioco");
+                });
+
             modelBuilder.Entity("PoolBookingApp.Models.AllegatoVideoGioco", b =>
                 {
                     b.Property<int>("Id")
@@ -889,10 +1177,15 @@ namespace AppVideoGameAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TipoAllegatoId")
+                        .HasColumnType("int");
+
                     b.Property<int>("VideoGiocoId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TipoAllegatoId");
 
                     b.HasIndex("VideoGiocoId");
 
@@ -901,6 +1194,12 @@ namespace AppVideoGameAPI.Migrations
 
             modelBuilder.Entity("AppVideoGameAPI.Models.AllegatoUtente", b =>
                 {
+                    b.HasOne("AppVideoGameAPI.Models.TipoAllegato", "TIpoAllegato")
+                        .WithMany()
+                        .HasForeignKey("TipoAllegatoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("AppVideoGameAPI.Models.DataUser", "DataUser")
                         .WithMany("AllegatiUtenti")
                         .HasForeignKey("UserId")
@@ -908,14 +1207,57 @@ namespace AppVideoGameAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("DataUser");
+
+                    b.Navigation("TIpoAllegato");
                 });
 
-            modelBuilder.Entity("AppVideoGameAPI.Models.Console", b =>
+            modelBuilder.Entity("AppVideoGameAPI.Models.AllegatoVideoGiocoStock", b =>
                 {
-                    b.HasOne("AppVideoGameAPI.Models.VideoGioco", null)
-                        .WithMany("Consoles")
-                        .HasForeignKey("VideoGiocoId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                    b.HasOne("AppVideoGameAPI.Models.TipoAllegato", "TIpoAllegato")
+                        .WithMany()
+                        .HasForeignKey("TipoAllegatoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AppVideoGameAPI.Models.StockVideoGioco", "StockVideoGioco")
+                        .WithMany()
+                        .HasForeignKey("VideoGiocoStockId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("StockVideoGioco");
+
+                    b.Navigation("TIpoAllegato");
+                });
+
+            modelBuilder.Entity("AppVideoGameAPI.Models.CarrelloOrdine", b =>
+                {
+                    b.HasOne("AppVideoGameAPI.Models.DataUser", "DataUser")
+                        .WithMany()
+                        .HasForeignKey("UtenteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DataUser");
+                });
+
+            modelBuilder.Entity("AppVideoGameAPI.Models.ElementoProferito", b =>
+                {
+                    b.HasOne("AppVideoGameAPI.Models.StockVideoGioco", "StockVideoGioco")
+                        .WithMany()
+                        .HasForeignKey("StockVideoGiocoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AppVideoGameAPI.Models.DataUser", "DataUser")
+                        .WithMany("ElementiProferiti")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DataUser");
+
+                    b.Navigation("StockVideoGioco");
                 });
 
             modelBuilder.Entity("AppVideoGameAPI.Models.Funzionalita", b =>
@@ -927,6 +1269,36 @@ namespace AppVideoGameAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("VideoGioco");
+                });
+
+            modelBuilder.Entity("AppVideoGameAPI.Models.IndirizzoResidenza", b =>
+                {
+                    b.HasOne("AppVideoGameAPI.Models.DataUser", "DataUser")
+                        .WithMany("IndirizziResidenza")
+                        .HasForeignKey("DataUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DataUser");
+                });
+
+            modelBuilder.Entity("AppVideoGameAPI.Models.ItemCarrello", b =>
+                {
+                    b.HasOne("AppVideoGameAPI.Models.CarrelloOrdine", "CarrelloOrdine")
+                        .WithMany("ItemsCarrello")
+                        .HasForeignKey("CarrelloId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AppVideoGameAPI.Models.StockVideoGioco", "Stock")
+                        .WithMany()
+                        .HasForeignKey("StockId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CarrelloOrdine");
+
+                    b.Navigation("Stock");
                 });
 
             modelBuilder.Entity("AppVideoGameAPI.Models.ItemOrdine", b =>
@@ -948,6 +1320,25 @@ namespace AppVideoGameAPI.Migrations
                     b.Navigation("Stock");
                 });
 
+            modelBuilder.Entity("AppVideoGameAPI.Models.MetodoPagamento", b =>
+                {
+                    b.HasOne("AppVideoGameAPI.Models.TipoPagamento", "TipoPagamento")
+                        .WithMany()
+                        .HasForeignKey("TipoPagamentoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AppVideoGameAPI.Models.DataUser", "DataUser")
+                        .WithMany("MetodiPagamento")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DataUser");
+
+                    b.Navigation("TipoPagamento");
+                });
+
             modelBuilder.Entity("AppVideoGameAPI.Models.ModelloConsole", b =>
                 {
                     b.HasOne("AppVideoGameAPI.Models.Console", "Console")
@@ -961,13 +1352,21 @@ namespace AppVideoGameAPI.Migrations
 
             modelBuilder.Entity("AppVideoGameAPI.Models.Ordine", b =>
                 {
-                    b.HasOne("AppVideoGameAPI.Models.DataUser", "DataUser")
+                    b.HasOne("AppVideoGameAPI.Models.MetodoPagamento", "MetodoPagamento")
                         .WithMany()
+                        .HasForeignKey("MetodoPagamentoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AppVideoGameAPI.Models.DataUser", "DataUser")
+                        .WithMany("Ordini")
                         .HasForeignKey("UtenteId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("DataUser");
+
+                    b.Navigation("MetodoPagamento");
                 });
 
             modelBuilder.Entity("AppVideoGameAPI.Models.Recensione", b =>
@@ -1057,11 +1456,6 @@ namespace AppVideoGameAPI.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("AppVideoGameAPI.Models.ModelloConsole", null)
-                        .WithMany("VideoGiochi")
-                        .HasForeignKey("ModelloConsoleId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("CasaProduttrice");
 
                     b.Navigation("RequisitoTecnico");
@@ -1133,15 +1527,43 @@ namespace AppVideoGameAPI.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ModelloConsoleVideoGioco", b =>
+                {
+                    b.HasOne("AppVideoGameAPI.Models.ModelloConsole", null)
+                        .WithMany()
+                        .HasForeignKey("ConsolesId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AppVideoGameAPI.Models.VideoGioco", null)
+                        .WithMany()
+                        .HasForeignKey("VideoGiochiId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("PoolBookingApp.Models.AllegatoVideoGioco", b =>
                 {
+                    b.HasOne("AppVideoGameAPI.Models.TipoAllegato", "TIpoAllegato")
+                        .WithMany()
+                        .HasForeignKey("TipoAllegatoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("AppVideoGameAPI.Models.VideoGioco", "VideoGioco")
                         .WithMany("AllegatiVideoGiochi")
                         .HasForeignKey("VideoGiocoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("TIpoAllegato");
+
                     b.Navigation("VideoGioco");
+                });
+
+            modelBuilder.Entity("AppVideoGameAPI.Models.CarrelloOrdine", b =>
+                {
+                    b.Navigation("ItemsCarrello");
                 });
 
             modelBuilder.Entity("AppVideoGameAPI.Models.Console", b =>
@@ -1152,11 +1574,14 @@ namespace AppVideoGameAPI.Migrations
             modelBuilder.Entity("AppVideoGameAPI.Models.DataUser", b =>
                 {
                     b.Navigation("AllegatiUtenti");
-                });
 
-            modelBuilder.Entity("AppVideoGameAPI.Models.ModelloConsole", b =>
-                {
-                    b.Navigation("VideoGiochi");
+                    b.Navigation("ElementiProferiti");
+
+                    b.Navigation("IndirizziResidenza");
+
+                    b.Navigation("MetodiPagamento");
+
+                    b.Navigation("Ordini");
                 });
 
             modelBuilder.Entity("AppVideoGameAPI.Models.Ordine", b =>
@@ -1167,8 +1592,6 @@ namespace AppVideoGameAPI.Migrations
             modelBuilder.Entity("AppVideoGameAPI.Models.VideoGioco", b =>
                 {
                     b.Navigation("AllegatiVideoGiochi");
-
-                    b.Navigation("Consoles");
 
                     b.Navigation("Funzionalitas");
                 });

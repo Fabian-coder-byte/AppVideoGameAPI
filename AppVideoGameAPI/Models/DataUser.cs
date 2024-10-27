@@ -12,10 +12,18 @@ namespace AppVideoGameAPI.Models
         [Required]
         [StringLength(100)]
         public string? Cognome { get; set; }
-        [Required]
-        public string? IndirizzoUtente { get; set; }
         public DateTime? UltimoAccesso { get; set; }
+        public bool AccettaUsoDati { get; set; }
+        public double SaldoDisponibile { get; set; }
         [ValidateNever]
         public ICollection<AllegatoUtente>? AllegatiUtenti { get; set; }
+        [ValidateNever]
+        public ICollection<IndirizzoResidenza>? IndirizziResidenza { get; set; }
+        [ValidateNever]
+        public ICollection<ElementoProferito>? ElementiProferiti { get; set; }
+        [ValidateNever]
+        public ICollection<Ordine>? Ordini { get; set; }
+        [ValidateNever]
+        public ICollection<MetodoPagamento>? MetodiPagamento { get; set; }
     }
 }

@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace AppVideoGameAPI.Models
 {
-    public class ItemOrdine
+    public class ItemCarrello
     {
         public int Id { get; set; }
         [Required]
@@ -15,9 +15,9 @@ namespace AppVideoGameAPI.Models
         public short Quantita { get; set; }
         public double Prezzo { get; set; }
         [Required]
-        public int OrdineId { get; set; }
+        public int CarrelloId { get; set; }
         [ValidateNever]
-        [ForeignKey(nameof(OrdineId))]
-        public Ordine? Ordine { get; set; }
+        [ForeignKey(nameof(CarrelloId))]
+        public CarrelloOrdine? CarrelloOrdine { get; set; }
     }
 }

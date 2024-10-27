@@ -24,10 +24,17 @@ namespace AppVideoGameAPI.Data
         public DbSet<VideoGioco> VideoGiochi { get; set; }
         public DbSet<AllegatoUtente> AllegatiUtente { get; set; }
         public DbSet<AllegatoVideoGioco> AllegatiVideoGiochi { get; set; }
+        public DbSet<AllegatoVideoGiocoStock> AllegatiVideoGiochiStocks { get; set; }
         public DbSet<Colore> Colori { get; set; }
         public DbSet<ModelloConsole> ModelliConsole { get; set; }
         public DbSet<StockConsole> StockConsoles { get; set; }
         public DbSet<CaratteristichaTecnica> CaratteristicheTecniche { get; set; }
+        public DbSet<TipoAllegato> TipiAllegati { get; set; }
+        public DbSet<IndirizzoResidenza> IndirizzoResidenza { get; set; }
+        public DbSet<TipoPagamento> TipoPagemento { get; set; }
+        public DbSet<MetodoPagamento> MetodoPagamento { get; set; }
+        public DbSet<CarrelloOrdine> CarrelloOrdini { get; set; }
+        public DbSet<ItemCarrello> ItemsCarrello { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
@@ -43,7 +50,15 @@ namespace AppVideoGameAPI.Data
               new IdentityRole { Id = "1", Name = "Admin", NormalizedName = "ADMIN" },
               new IdentityRole { Id = "2", Name = "Customer", NormalizedName = "CUSTOMER" }
           );
-            DataUser Utente = new DataUser
+
+            builder.Entity<TipoAllegato>().HasData(
+             new TipoAllegato { Id = 1, Nome = "Foto Profilo" },
+             new TipoAllegato { Id = 2, Nome = "Immagini Slider" },
+             new TipoAllegato { Id = 3, Nome = "Video Trailer" },
+             new TipoAllegato { Id = 4, Nome = "Documentazione Gioco" },
+             new TipoAllegato { Id = 5, Nome = "Foto Gioco" }
+             );
+            DataUser Utente = new()
             {
                 Id = Guid.NewGuid().ToString(),
                 UserName = "fabiansartini@gmail.com",
@@ -53,7 +68,7 @@ namespace AppVideoGameAPI.Data
                 EmailConfirmed = true,
                 Nome = "Fabian",
                 Cognome = "Sartini",
-                IndirizzoUtente = "Via Pragelato 20",
+                SaldoDisponibile=200
             };
             PasswordHasher<DataUser> passwordHasherUtente = new PasswordHasher<DataUser>();
             Utente.PasswordHash = passwordHasherUtente.HashPassword(Utente, "Aa123!");
@@ -76,7 +91,7 @@ namespace AppVideoGameAPI.Data
                 EmailConfirmed = true,
                 Nome = "Fabian",
                 Cognome = "Sartini",
-                IndirizzoUtente = "Via Russo 238"
+                SaldoDisponibile=300
             };
             PasswordHasher<DataUser> passwordHasherAdmin = new PasswordHasher<DataUser>();
             Admin.PasswordHash = passwordHasherAdmin.HashPassword(Admin, "Aa123!");
@@ -96,18 +111,29 @@ namespace AppVideoGameAPI.Data
                   new CasaProduttrice { Id = 5, Nome = "Naughty Dogs" }
                 );
             builder.Entity<Models.Console>().HasData(
-                new Models.Console { Id = 1, Nome = "Xbox 360", },
-                 new Models.Console { Id = 2, Nome = "PlayStation 4", },
-                 new Models.Console { Id = 3, Nome = "PC"},
+                new Models.Console { Id = 1, Nome = "Xbox", },
+                 new Models.Console { Id = 2, Nome = "PlayStation", },
+                 new Models.Console { Id = 3, Nome = "PC" },
                  new Models.Console { Id = 4, Nome = "Nintendo" }
                 );
+            builder.Entity<Models.TipoPagamento>().HasData(
+              new Models.TipoPagamento { Id = 1, Nome = "Visa" },
+              new Models.TipoPagamento { Id = 2, Nome = "Master Card" }
+             );
+            builder.Entity<Models.ModelloConsole>().HasData(
+              new Models.ModelloConsole { Id = 1, Nome = "Xbox 360",ConsoleId=1 },
+              new Models.ModelloConsole { Id = 2, Nome = "PlayStation 4", ConsoleId = 2 },
+              new Models.ModelloConsole { Id = 3, Nome = "PlayStation 5", ConsoleId = 2 },
+              new Models.ModelloConsole { Id = 4, Nome = "PlayStation 3", ConsoleId = 2 },
+              new Models.ModelloConsole { Id = 5, Nome = "Kata GF66", ConsoleId = 3 }
+              );
             builder.Entity<FormatoGioco>().HasData(
-               new FormatoGioco { Id = 1, Nome = "Codice Digitale"},
+               new FormatoGioco { Id = 1, Nome = "Codice Digitale" },
                 new FormatoGioco { Id = 2, Nome = "DVD" }
                );
             builder.Entity<Funzionalita>().HasData(
-              new Funzionalita { Id = 1, Nome = "Giocatore Singolo" ,VideoGiocoId=2},
-               new Funzionalita { Id = 2, Nome = "Co-Op",VideoGiocoId=1 }
+              new Funzionalita { Id = 1, Nome = "Giocatore Singolo", VideoGiocoId = 2 },
+               new Funzionalita { Id = 2, Nome = "Co-Op", VideoGiocoId = 1 }
               );
             builder.Entity<Genere>().HasData(
              new Genere { Id = 1, Nome = "Sparatutto", },
@@ -121,10 +147,10 @@ namespace AppVideoGameAPI.Data
            );
 
             builder.Entity<CaratteristichaTecnica>().HasData(
-           new CaratteristichaTecnica { Id = 1, CPU="i7",GPU="GeForce 3050",Memoria="16Gb",SchedaArchiviazione="1024" }
+           new CaratteristichaTecnica { Id = 1, CPU = "i7", GPU = "GeForce 3050", Memoria = "16Gb", SchedaArchiviazione = "1024" }
            );
             builder.Entity<VideoGioco>().HasData(
-           new VideoGioco { Id = 1, Nome = "Ratchet e Clank ",CasaProduttriceId=1,DataRilascio=new DateOnly(2020,05,12),CaratteristicaTecnicaId=1 },
+           new VideoGioco { Id = 1, Nome = "Ratchet e Clank ", CasaProduttriceId = 1, DataRilascio = new DateOnly(2020, 05, 12), CaratteristicaTecnicaId = 1 },
            new VideoGioco { Id = 2, Nome = "Gears of War", CasaProduttriceId = 4, DataRilascio = new DateOnly(2020, 05, 12), CaratteristicaTecnicaId = 1 },
            new VideoGioco { Id = 3, Nome = "The Last of Us", CasaProduttriceId = 5, DataRilascio = new DateOnly(2020, 05, 12), CaratteristicaTecnicaId = 1 }
            );

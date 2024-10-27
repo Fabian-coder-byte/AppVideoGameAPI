@@ -28,18 +28,18 @@ namespace AppVideoGameAPI.Controllers
             List<DTO.Recensione.RecensioneList> results = [];
             try
             {
-                List<Models.Recensione> RecensioniList = [.. _context.Recensioni.Include(x=>x.VideoGioco).Include(x=>x.Utente)];
+                List<Models.Recensione> RecensioniList = [.. _context.Recensioni.Include(x => x.VideoGioco).Include(x => x.Utente)];
 
                 foreach (Models.Recensione Rec in RecensioniList)
                 {
                     DTO.Recensione.RecensioneList RecensioneObj = new()
                     {
-                       Data = Rec.Data,
-                       Descrizione = Rec.Descrizione,
-                       EmailUtente=Rec.Utente!.Email!,
-                       NomeCognomeUtente=$"{Rec.Utente.Nome} {Rec.Utente.Cognome}" ,
-                       NomeVideoGioco=Rec.VideoGioco!.Nome!,
-                       Voto=Rec.Voto
+                        Data = Rec.Data,
+                        Descrizione = Rec.Descrizione,
+                        EmailUtente = Rec.Utente!.Email!,
+                        NomeCognomeUtente = $"{Rec.Utente.Nome} {Rec.Utente.Cognome}",
+                        NomeVideoGioco = Rec.VideoGioco!.Nome!,
+                        Voto = Rec.Voto
                     };
                     results.Add(RecensioneObj);
                 }
@@ -57,30 +57,35 @@ namespace AppVideoGameAPI.Controllers
             }
         }
         [HttpPost]
-        [Route("Create")]
+        [Route("CreateEdit")]
         [ProducesResponseType(typeof(VideoGameMenu), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult Create([FromBody]  DTO.Recensione.RecensioneCreate ObjSent)
+        public IActionResult CreateEdit([FromBody] DTO.Recensione.RecensioneCreate ObjSent)
         {
             try
             {
                 if (!TryValidateModel(ObjSent)) return BadRequest();
                 if (ObjSent.Voto <= 0 && ObjSent.Voto >= 6) throw new ArgumentException(Constants.BadRequest);
-
+                Models.Recensione? FindRecensione = _context.Recensioni.FirstOrDefault(x => x.Id == ObjSent.Id);
                 Models.Recensione Recensione = _mapper.Map<Models.Recensione>(ObjSent);
-                _context.Recensioni.Add(Recensione);
+                if (FindRecensione != null)
+                {
+                    _context.Recensioni.Update(Recensione);
+                }
+                else
+                {
+                    _context.Recensioni.Add(Recensione);
+                }
                 _context.SaveChanges();
                 return Ok(JsonConvert.SerializeObject(Recensione, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
                     Formatting = Formatting.Indented,
                 }));
-
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-
             }
         }
         [HttpGet]
@@ -92,8 +97,9 @@ namespace AppVideoGameAPI.Controllers
             List<DTO.Recensione.RecensioneVideogioco> results = [];
             try
             {
-                if (!ModelState.IsValid) {
-                throw new InvalidOperationException(Constants.BadRequest);
+                if (!ModelState.IsValid)
+                {
+                    throw new InvalidOperationException(Constants.BadRequest);
                 }
                 List<Models.Recensione> RecensioniList = [.. _context.Recensioni.
                     Include(x => x.VideoGioco).
@@ -104,10 +110,12 @@ namespace AppVideoGameAPI.Controllers
                 {
                     DTO.Recensione.RecensioneVideogioco RecensioneObj = new()
                     {
+                        Id = Rec.Id,
                         Descrizione = Rec.Descrizione,
                         Voto = Rec.Voto,
-                        NomeUtente=Rec.Utente.Nome!,
-                        Data=Rec.Data
+                        NomeUtente = Rec.Utente!.Nome!,
+                        Data = Rec.Data,
+                        UserId = Rec.UserId!
                     };
                     AllegatoUtente? FotoProfilo = _context.AllegatiUtente.FirstOrDefault(a => a.UserId == Rec.UserId);
                     if (FotoProfilo != null)
@@ -126,7 +134,34 @@ namespace AppVideoGameAPI.Controllers
 
             }
         }
+        [HttpGet]
+        [Route("Delete")]
+        [ProducesResponseType(typeof(List<DTO.Recensione.RecensioneList>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    throw new InvalidOperationException(Constants.BadRequest);
+                }
+                Recensione Recensione = _context.Recensioni.FirstOrDefault(a => a.Id == id)
+                ?? throw new ArgumentException(Constants.BadRequest);
+                _context.Recensioni.Remove(Recensione);
+                _context.SaveChanges();
+                return Ok(JsonConvert.SerializeObject(Recensione, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
 
+            }
+        }
         [HttpGet]
         [Route("MediaVotiId")]
         [ProducesResponseType(typeof(List<DTO.Recensione.RecensioneList>), StatusCodes.Status200OK)]

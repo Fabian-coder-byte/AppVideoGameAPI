@@ -100,7 +100,6 @@ namespace AppVideoGameAPI.Controllers
                     EmailConfirmed = true,
                     Nome = credentials.Nome,
                     Cognome = credentials.Cognome,
-                    IndirizzoUtente=credentials.IndirizzoUtente
                 };
                 await CreateUserRole(user, credentials.Password, "Customer");
                 return Ok(JsonConvert.SerializeObject(user, new JsonSerializerSettings()

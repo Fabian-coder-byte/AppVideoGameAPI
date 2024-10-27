@@ -6,6 +6,6 @@
         public int FormatoGiocoId { get; set; }
         public int ConsoleId { get; set; }
         public short Quantita { get; set; }
-        public double Prezzo { get; set; }
+        public short Prezzo { get; set; }
     }
 }

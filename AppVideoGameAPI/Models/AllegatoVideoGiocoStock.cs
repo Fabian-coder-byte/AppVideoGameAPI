@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace AppVideoGameAPI.Models
 {
-    public class AllegatoUtente
+    public class AllegatoVideoGiocoStock
     {
         [Key]
         public int Id { get; set; }
@@ -11,9 +11,10 @@ namespace AppVideoGameAPI.Models
         public string? NomeFile { get; set; }
         [Required]
         public byte[]? Content { get; set; }
-        public string UserId { get; set; }
-        [ForeignKey(nameof(UserId))]
-        public DataUser? DataUser { get; set; }
+        public int VideoGiocoStockId { get; set; }
+        [Required]
+        [ForeignKey(nameof(VideoGiocoStockId))]
+        public StockVideoGioco? StockVideoGioco { get; set; }
         public int TipoAllegatoId { get; set; }
         [ForeignKey(nameof(TipoAllegatoId))]
         [Required]
