@@ -60,6 +60,61 @@ namespace AppVideoGameAPI.Controllers
 
             }
         }
+        [HttpGet]
+        [Route("GetAllSearchByName")]
+        [ProducesResponseType(typeof(List<VideoGameMenu>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetAllSearchByName(string? nome)
+        {
+            List<VideoGameMenu> results = [];
+            try
+            {
+                List<Models.StockVideoGioco> Stocks = [];
+                if (String.IsNullOrEmpty(nome))
+                {
+                    Stocks = [.._context.Stocks
+                         .Include(x => x.Console)
+                         .Include(x => x.VideoGioco)
+                         .Include(x => x.Formato)];
+                }
+                else
+                {
+                    Stocks = [.._context.Stocks
+                         .Include(x => x.Console)
+                         .Include(x => x.VideoGioco)
+                         .Include(x => x.Formato)
+                         .Where(a => a.VideoGioco!.Nome!.Contains(nome))];
+                }
+               
+                foreach (Models.StockVideoGioco StockItem in Stocks)
+                {
+                    VideoGameMenu stock = new()
+                    {
+                        Id = StockItem.Id,
+                        NomeVideoGioco = StockItem.VideoGioco?.Nome!,
+                        NomeConsole = StockItem.Console?.Nome!,
+                        FormatoVideoGioco = StockItem.Formato?.Nome!,
+                        Prezzo = StockItem.Prezzo,
+                        QuantitaRimanenti = StockItem.Quantita,
+                    };
+                    AllegatoVideoGioco? allegatoVideoGioco = _context.AllegatiVideoGiochi.FirstOrDefault(a => a.VideoGiocoId == StockItem.VideoGioco!.Id!);
+                    if (allegatoVideoGioco != null)
+                        stock.CodeImage = Convert.ToBase64String(allegatoVideoGioco.Content!);
+                    results.Add(stock);
+                }
+                return Ok(JsonConvert.SerializeObject(results, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
+            }
+        }
         [HttpPost]
         [Route("Create")]
         [ProducesResponseType(typeof(VideoGameMenu), StatusCodes.Status200OK)]
@@ -73,10 +128,10 @@ namespace AppVideoGameAPI.Controllers
                 Models.StockVideoGioco stock = new()
                 {
                     ConsoleId = stockSent.ConsoleId,
-                    FormatoGiocoId=stockSent.FormatoGiocoId,
-                    Prezzo=stockSent.Prezzo,
-                    Quantita=stockSent.Quantita,
-                    VideoGiocoId=stockSent.VideoGiocoId,
+                    FormatoGiocoId = stockSent.FormatoGiocoId,
+                    Prezzo = stockSent.Prezzo,
+                    Quantita = stockSent.Quantita,
+                    VideoGiocoId = stockSent.VideoGiocoId,
                 };
                 _context.Stocks.Add(stock);
                 _context.SaveChanges();
@@ -105,23 +160,23 @@ namespace AppVideoGameAPI.Controllers
                 Models.StockVideoGioco StockVideoGame = _context.Stocks.
                     Include(x => x.Console).
                     Include(x => x.VideoGioco).
-                    ThenInclude(a=>a.CasaProduttrice).
-                    Include(x=>x.VideoGioco)
-                    .ThenInclude(a=>a.AllegatiVideoGiochi)
+                    ThenInclude(a => a.CasaProduttrice).
+                    Include(x => x.VideoGioco)
+                    .ThenInclude(a => a.AllegatiVideoGiochi)
                     .Include(x => x.Formato).FirstOrDefault(x => x.Id == id) ?? throw new ArgumentException(Constants.VideoGameNotFound);
 
                 DatiVideoGame VideoGioco = new()
                 {
-                    NomeVideoGioco=StockVideoGame.VideoGioco.Nome,
-                    CasaProduttrice=StockVideoGame.VideoGioco.CasaProduttrice.Nome,
-                    NomeConsole=StockVideoGame.Console.Nome,
-                    Prezzo=StockVideoGame.Prezzo,
-                    QuantitaRimanenti=StockVideoGame.Quantita,
-                    FormatoVideoGioco=StockVideoGame.Formato.Nome,
-                    DescrizioneGioco=StockVideoGame.VideoGioco.Descrizione,
-                    Id=id,
-                    DataRilascio=StockVideoGame.VideoGioco.DataRilascio
-                    
+                    NomeVideoGioco = StockVideoGame.VideoGioco.Nome,
+                    CasaProduttrice = StockVideoGame.VideoGioco.CasaProduttrice.Nome,
+                    NomeConsole = StockVideoGame.Console.Nome,
+                    Prezzo = StockVideoGame.Prezzo,
+                    QuantitaRimanenti = StockVideoGame.Quantita,
+                    FormatoVideoGioco = StockVideoGame.Formato.Nome,
+                    DescrizioneGioco = StockVideoGame.VideoGioco.Descrizione,
+                    Id = id,
+                    DataRilascio = StockVideoGame.VideoGioco.DataRilascio
+
                 };
                 List<AllegatoVideoGioco>? allegatiVideoGiochi = _context.AllegatiVideoGiochi.Where(a => a.VideoGiocoId == StockVideoGame.VideoGiocoId).ToList();
                 if (allegatiVideoGiochi.Count != 0)

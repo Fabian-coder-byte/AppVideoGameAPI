@@ -39,7 +39,8 @@ namespace AppVideoGameAPI.Controllers
                         EmailUtente = Rec.Utente!.Email!,
                         NomeCognomeUtente = $"{Rec.Utente.Nome} {Rec.Utente.Cognome}",
                         NomeVideoGioco = Rec.VideoGioco!.Nome!,
-                        Voto = Rec.Voto
+                        Voto = Rec.Voto,
+                        Id=Rec.Id
                     };
                     results.Add(RecensioneObj);
                 }
@@ -67,17 +68,30 @@ namespace AppVideoGameAPI.Controllers
                 if (!TryValidateModel(ObjSent)) return BadRequest();
                 if (ObjSent.Voto <= 0 && ObjSent.Voto >= 6) throw new ArgumentException(Constants.BadRequest);
                 Models.Recensione? FindRecensione = _context.Recensioni.FirstOrDefault(x => x.Id == ObjSent.Id);
-                Models.Recensione Recensione = _mapper.Map<Models.Recensione>(ObjSent);
                 if (FindRecensione != null)
                 {
-                    _context.Recensioni.Update(Recensione);
+                    // Update the properties of the existing entity
+                    FindRecensione.Data = ObjSent.Data;
+                    FindRecensione.Descrizione = ObjSent.Descrizione;
+                    FindRecensione.UserId = ObjSent.UserId;
+                    FindRecensione.VideoGiocoId = ObjSent.VideoGiocoId;
+                    FindRecensione.Voto = ObjSent.Voto;
                 }
                 else
                 {
+                    Models.Recensione Recensione = new()
+                    {
+                        Data = ObjSent.Data,
+                        Descrizione = ObjSent.Descrizione,
+                        UserId = ObjSent.UserId,
+                        VideoGiocoId = ObjSent.VideoGiocoId,
+                        Voto = ObjSent.Voto,
+                        Id = ObjSent.Id
+                    };
                     _context.Recensioni.Add(Recensione);
                 }
                 _context.SaveChanges();
-                return Ok(JsonConvert.SerializeObject(Recensione, new JsonSerializerSettings()
+                return Ok(JsonConvert.SerializeObject(FindRecensione, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
                     Formatting = Formatting.Indented,
@@ -151,6 +165,44 @@ namespace AppVideoGameAPI.Controllers
                 _context.Recensioni.Remove(Recensione);
                 _context.SaveChanges();
                 return Ok(JsonConvert.SerializeObject(Recensione, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
+            }
+        }
+        [HttpGet]
+        [Route("GetByIdRec")]
+        [ProducesResponseType(typeof(List<DTO.Recensione.RecensioneList>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetByIdRec(int id)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    throw new InvalidOperationException(Constants.BadRequest);
+                }
+                Recensione Recensione = _context.Recensioni.Include(x=>x.Utente).FirstOrDefault(a => a.Id == id)
+                ?? throw new ArgumentException(Constants.BadRequest);
+                DTO.Recensione.RecensioneVideogioco RecensioneObj = new()
+                {
+                    Descrizione=Recensione.Descrizione,
+                    Voto=Recensione.Voto,
+                    Data=Recensione.Data,
+                    NomeUtente=Recensione.Utente!.Nome!,
+                    UserId= Recensione.UserId!,
+                    Id=id
+                };
+                AllegatoUtente? FotoProfilo = _context.AllegatiUtente.FirstOrDefault(a => a.UserId == Recensione.UserId);
+                if (FotoProfilo != null)
+                    RecensioneObj.ImmagineUtente = Convert.ToBase64String(FotoProfilo.Content!);
+                return Ok(JsonConvert.SerializeObject(RecensioneObj, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
                     Formatting = Formatting.Indented,

@@ -14,5 +14,6 @@
         public const string QuantitaInsufficente = "La Quanità di un elemento è superire a quella attualemente disponibile nel magazzino";
         public const string DenaroInsufficente = "Saldo insufficente sul conto";
         public const string CartaScaduta = "La Carta Selezionata è Scaduta";
+        public const string OrdineNotFound = "Non è stato trovato l'ordine";
     }
 }

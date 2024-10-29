@@ -148,6 +148,68 @@ namespace AppVideoGameAPI.Controllers
 
             }
         }
+
+        [HttpGet]
+        [Route("GetGameById")]
+        [ProducesResponseType(typeof(List<DTO.Ordine.OrdineList>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetGameById(string userId, int gameId)
+        {
+            DTO.Ordine.OrdineListUtente OrdineObj = null;
+            try
+            {
+                Models.Ordine? Ordine =
+                    _context.Ordini.
+                    Include(x => x.DataUser)
+                   .Include(o => o.ItemOrdini)!
+                        .ThenInclude(io => io.Stock)
+                            .ThenInclude(s => s.Console)
+                    .Include(o => o.ItemOrdini)!
+                        .ThenInclude(io => io.Stock)
+                            .ThenInclude(s => s.Formato)
+                    .Include(o => o.ItemOrdini)!
+                        .ThenInclude(io => io.Stock)
+                            .ThenInclude(s => s.VideoGioco)
+                            .Where(x => x.UtenteId == userId && x.ItemOrdini!.Any(s => s.StockId == gameId)).FirstOrDefault();
+                if (Ordine != null)
+                {
+                    OrdineObj = new()
+                    {
+                        DataOrdine = Ordine.Data,
+                        Items = [],
+                        OrderId = Ordine.Id
+                    };
+                    foreach (Models.ItemOrdine Item in Ordine.ItemOrdini!)
+                    {
+                        OrdineItem OrdineItem = new()
+                        {
+                            ConsoleGioco = Item.Stock.Console.Nome,
+                            FormatoGioco = Item.Stock.Formato.Nome,
+                            NomeVideogioco = Item.Stock.VideoGioco.Nome,
+                            Quantita = Item.Quantita,
+                            Prezzo = Item.Stock.Prezzo,
+                            ItemId = Item.Id
+
+                        };
+                        AllegatoVideoGioco? allegatoVideoGioco = _context.AllegatiVideoGiochi.FirstOrDefault(a => a.VideoGiocoId == Item.Stock.VideoGiocoId);
+                        if (allegatoVideoGioco != null)
+                            OrdineItem.CodeImage = Convert.ToBase64String(allegatoVideoGioco.Content!);
+                        OrdineObj.Items.Add(OrdineItem);
+                    }
+                }
+                return Ok(JsonConvert.SerializeObject(OrdineObj, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
+            }
+        }
         [HttpPost]
         [Route("Create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -177,7 +239,7 @@ namespace AppVideoGameAPI.Controllers
                 }
 
                 if (MetodoPagamento != null)
-                { 
+                {
                     if (MetodoPagamento.DataScadenza < DateOnly.FromDateTime(DateTime.Today)) throw new ArgumentException(Constants.CartaScaduta);
                     MetodoPagamento.SaldoDisponibile -= TotaleSpesa;
                 }
@@ -250,7 +312,7 @@ namespace AppVideoGameAPI.Controllers
                         {
                             StockId = ObjSent.StockId,
                             Quantita = ObjSent.Quantita,
-                            Prezzo=StockVideoGame.Prezzo,
+                            Prezzo = StockVideoGame.Prezzo,
                         });
                     }
                 }
@@ -336,7 +398,7 @@ namespace AppVideoGameAPI.Controllers
                             .Where(x => x.UtenteId == userId).FirstOrDefault();
                 DTO.Ordine.CarrelloList CarrelloObj = new()
                 {
-                    CarrelloId = CarrelloOrdine!=null? CarrelloOrdine.Id:0,
+                    CarrelloId = CarrelloOrdine != null ? CarrelloOrdine.Id : 0,
                     Items = []
                 };
                 if (CarrelloOrdine != null)
@@ -358,7 +420,7 @@ namespace AppVideoGameAPI.Controllers
                         CarrelloObj.Items.Add(OrdineItem);
                     }
                 }
-             
+
                 return Ok(JsonConvert.SerializeObject(CarrelloObj, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
