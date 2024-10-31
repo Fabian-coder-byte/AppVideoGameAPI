@@ -15,5 +15,6 @@
         public const string DenaroInsufficente = "Saldo insufficente sul conto";
         public const string CartaScaduta = "La Carta Selezionata è Scaduta";
         public const string OrdineNotFound = "Non è stato trovato l'ordine";
+        public const string MetodoPagamentoNotFound = "Non è stato trovato l'ordine";
     }
 }
