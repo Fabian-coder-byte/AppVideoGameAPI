@@ -1,5 +1,6 @@
 ﻿using AppVideoGameAPI.Data;
 using AppVideoGameAPI.DTO.Stocks;
+using AppVideoGameAPI.Models;
 using AppVideoGameAPI.Utilities;
 using AppVideoGameAPI.ViewModels;
 using AutoMapper;
@@ -64,12 +65,46 @@ namespace AppVideoGameAPI.Controllers
         [Route("GetAllSearchByName")]
         [ProducesResponseType(typeof(List<VideoGameMenu>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult GetAllSearchByName(string? nome)
+        public IActionResult GetAllSearchByName(string? nome,int ordinamentoId,int tipoConsoleId,int tipoFormatoId)
         {
             List<VideoGameMenu> results = [];
             try
             {
+                //Ordinamento
+                //1 Ordine Crescente
+                //2 Ordine Decrescente
+                //3 Ultime Uscite
+                //4 Prime Uscite
                 List<Models.StockVideoGioco> Stocks = [];
+                switch (ordinamentoId)
+                {
+                    case 1:
+                        Stocks = [.._context.Stocks
+                         .Include(x => x.Console)
+                         .Include(x => x.VideoGioco)
+                         .Include(x => x.Formato).OrderBy(x=>x.VideoGioco.Nome)];
+                        break;
+                    case 2:
+                        Stocks = [.._context.Stocks
+                         .Include(x => x.Console)
+                         .Include(x => x.VideoGioco)
+                         .Include(x => x.Formato).OrderByDescending(x=>x.VideoGioco.Nome)];
+                        break;
+                    case 3:
+                        Stocks = [.._context.Stocks
+                         .Include(x => x.Console)
+                         .Include(x => x.VideoGioco)
+                         .Include(x => x.Formato).OrderBy(x=>x.VideoGioco.DataRilascio)];
+                        break;
+                    case 4:
+                        Stocks = [.._context.Stocks
+                         .Include(x => x.Console)
+                         .Include(x => x.VideoGioco)
+                         .Include(x => x.Formato).OrderByDescending(x=>x.VideoGioco.DataRilascio)];
+                        break;
+
+                }
+               
                 if (String.IsNullOrEmpty(nome))
                 {
                     Stocks = [.._context.Stocks
@@ -85,7 +120,7 @@ namespace AppVideoGameAPI.Controllers
                          .Include(x => x.Formato)
                          .Where(a => a.VideoGioco!.Nome!.Contains(nome))];
                 }
-               
+
                 foreach (Models.StockVideoGioco StockItem in Stocks)
                 {
                     VideoGameMenu stock = new()
@@ -178,16 +213,70 @@ namespace AppVideoGameAPI.Controllers
                     DataRilascio = StockVideoGame.VideoGioco.DataRilascio
 
                 };
-                List<AllegatoVideoGioco>? allegatiVideoGiochi = _context.AllegatiVideoGiochi.Where(a => a.VideoGiocoId == StockVideoGame.VideoGiocoId).ToList();
-                if (allegatiVideoGiochi.Count != 0)
+                AllegatoVideoGioco? allegatiVideoGiochi = _context.AllegatiVideoGiochi.Where(a => a.VideoGiocoId == StockVideoGame.VideoGiocoId && a.TipoAllegatoId == 5).FirstOrDefault();
+                if (allegatiVideoGiochi != null)
                 {
-                    VideoGioco.CodeImages = [];
-                    foreach (var el in allegatiVideoGiochi)
-                    {
-                        VideoGioco.CodeImages.Add(Convert.ToBase64String(el.Content!));
-                    }
+                    VideoGioco.CodeImage = Convert.ToBase64String(allegatiVideoGiochi.Content!);
                 }
                 return Ok(JsonConvert.SerializeObject(VideoGioco, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
+            }
+        }
+
+        [HttpGet]
+        [Route("GetAllImagesGame")]
+        [ProducesResponseType(typeof(List<VideoGameMenu>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetAllImagesGame(int id)
+        {
+            try
+            {
+                List<string> results = [.. _context.Stocks
+                    .Include(x=>x.VideoGioco)
+                    .ThenInclude(x=>x.AllegatiVideoGiochi)
+                     .Where(a => a.Id == id)
+                     .SelectMany(x => x.VideoGioco!.AllegatiVideoGiochi!
+                         .Where(allegato => allegato.TipoAllegatoId == 2)
+                         .Select(allegato => Convert.ToBase64String(allegato.Content!))
+                     )];
+                return Ok(JsonConvert.SerializeObject(results, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
+            }
+        }
+
+        [HttpGet]
+        [Route("GetTrailerGame")]
+        [ProducesResponseType(typeof(List<VideoGameMenu>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetTrailerGame(int id)
+        {
+            try
+            {
+                string? result = _context.Stocks
+                    .Include(x => x.VideoGioco)
+                    .ThenInclude(x => x.AllegatiVideoGiochi)
+                     .Where(a => a.Id == id)
+                     .SelectMany(x => x.VideoGioco!.AllegatiVideoGiochi!
+                         .Where(allegato => allegato.TipoAllegatoId == 6)
+                         .Select(allegato => Convert.ToBase64String(allegato.Content!))
+                     ).FirstOrDefault();
+                return Ok(JsonConvert.SerializeObject(result, new JsonSerializerSettings()
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
                     Formatting = Formatting.Indented,

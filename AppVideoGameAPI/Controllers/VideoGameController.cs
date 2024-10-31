@@ -75,7 +75,8 @@ namespace AppVideoGameAPI.Controllers
                     CasaProduttriceId = ObjSent.CasaProduttriceId,
                     DataRilascio = ObjSent.DataRilascio,
                     Descrizione = ObjSent.Descrizione,
-                    Nome = ObjSent.Nome
+                    Nome = ObjSent.Nome,
+                    CaratteristicaTecnicaId=ObjSent.CaratteristicaTecnicaId
                 };
                 _context.VideoGiochi.Add(NewVideoGame);
                 _context.SaveChanges();
@@ -248,13 +249,14 @@ namespace AppVideoGameAPI.Controllers
             try
             {
                 if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
-                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x => x.Generi).FirstOrDefault(x => x.Id == Id) ?? throw new ArgumentException(Constants.VideoGameNotFound);
+                Models.StockVideoGioco StockGame = _context.Stocks.Include(x => x.VideoGioco).ThenInclude(x=>x.Generi).FirstOrDefault(x => x.Id == Id) ?? throw new ArgumentException(Constants.VideoGameNotFound);
 
-                List<Models.Genere> GenereData = [.. VideoGioco.Generi!];
+                List<Models.Genere> GenereData = [.. StockGame.VideoGioco!.Generi!];
                 foreach (Models.Genere Gen in GenereData)
                 {
                     DTO.VideoGame.ListaGeneriGioco GenereGioco = new()
                     {
+                        Id=Gen.Id,
                         NomeGenere = Gen.Nome!
                     };
                     GeneriList.Add(GenereGioco);
