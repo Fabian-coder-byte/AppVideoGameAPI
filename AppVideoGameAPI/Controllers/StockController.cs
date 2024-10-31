@@ -62,65 +62,45 @@ namespace AppVideoGameAPI.Controllers
             }
         }
         [HttpGet]
-        [Route("GetAllSearchByName")]
+        [Route("GetAllFilter")]
         [ProducesResponseType(typeof(List<VideoGameMenu>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult GetAllSearchByName(string? nome,int ordinamentoId,int tipoConsoleId,int tipoFormatoId)
+        public IActionResult GetAllFilter(string? nome, int ordinamentoId, int tipoConsoleId, int tipoFormatoId,int budget=100)
         {
             List<VideoGameMenu> results = [];
             try
             {
-                //Ordinamento
-                //1 Ordine Crescente
-                //2 Ordine Decrescente
-                //3 Ultime Uscite
-                //4 Prime Uscite
-                List<Models.StockVideoGioco> Stocks = [];
+                List<Models.StockVideoGioco> Stocks = [ .._context.Stocks
+                    .Include(x => x.Console)
+                    .Include(x => x.VideoGioco)
+                    .Include(x => x.Formato).Where(x=>x.Prezzo<=budget)];
+                if (!string.IsNullOrEmpty(nome))
+                {
+                    Stocks = [..Stocks.Where(a => a.VideoGioco!.Nome!.ToLower().Contains(nome.ToLower()))];
+                }
+                if (tipoConsoleId != 0)
+                {
+                    Stocks = [..Stocks.Where(s => s.ConsoleId == tipoConsoleId)];
+                }
+                if (tipoFormatoId != 0)
+                {
+                    Stocks = [..Stocks.Where(s => s.FormatoGiocoId == tipoFormatoId)];
+                }
                 switch (ordinamentoId)
                 {
                     case 1:
-                        Stocks = [.._context.Stocks
-                         .Include(x => x.Console)
-                         .Include(x => x.VideoGioco)
-                         .Include(x => x.Formato).OrderBy(x=>x.VideoGioco.Nome)];
+                        Stocks = [.. Stocks.OrderBy(x => x.VideoGioco.Nome)];
                         break;
                     case 2:
-                        Stocks = [.._context.Stocks
-                         .Include(x => x.Console)
-                         .Include(x => x.VideoGioco)
-                         .Include(x => x.Formato).OrderByDescending(x=>x.VideoGioco.Nome)];
+                        Stocks = [.. Stocks.OrderByDescending(x => x.VideoGioco.Nome)];
                         break;
                     case 3:
-                        Stocks = [.._context.Stocks
-                         .Include(x => x.Console)
-                         .Include(x => x.VideoGioco)
-                         .Include(x => x.Formato).OrderBy(x=>x.VideoGioco.DataRilascio)];
+                        Stocks = [..Stocks.OrderBy(x => x.VideoGioco.DataRilascio)];
                         break;
                     case 4:
-                        Stocks = [.._context.Stocks
-                         .Include(x => x.Console)
-                         .Include(x => x.VideoGioco)
-                         .Include(x => x.Formato).OrderByDescending(x=>x.VideoGioco.DataRilascio)];
+                        Stocks = [.. Stocks.OrderByDescending(x => x.VideoGioco.DataRilascio)];
                         break;
-
                 }
-               
-                if (String.IsNullOrEmpty(nome))
-                {
-                    Stocks = [.._context.Stocks
-                         .Include(x => x.Console)
-                         .Include(x => x.VideoGioco)
-                         .Include(x => x.Formato)];
-                }
-                else
-                {
-                    Stocks = [.._context.Stocks
-                         .Include(x => x.Console)
-                         .Include(x => x.VideoGioco)
-                         .Include(x => x.Formato)
-                         .Where(a => a.VideoGioco!.Nome!.Contains(nome))];
-                }
-
                 foreach (Models.StockVideoGioco StockItem in Stocks)
                 {
                     VideoGameMenu stock = new()

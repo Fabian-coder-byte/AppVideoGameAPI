@@ -15,5 +15,6 @@ namespace AppVideoGameAPI.DTO.Ordine
         public string CodeImage { get; set; }
         public double Prezzo { get; set; }
         public int ItemId { get; set; }
+        public int QuanitaRimanenti { get; set; }
     }
 }

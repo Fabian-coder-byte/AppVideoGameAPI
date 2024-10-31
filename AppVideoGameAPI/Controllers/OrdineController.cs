@@ -376,6 +376,41 @@ namespace AppVideoGameAPI.Controllers
         }
 
         [HttpGet]
+        [Route("UpdateQuantityItemCarrello")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult UpdateQuantityItemCarrello(short Quantity, int ItemId,int CarrelloId)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest();
+                CarrelloOrdine CarrelloOrdine = _context.CarrelloOrdini.Include(x => x.ItemsCarrello).FirstOrDefault(x => x.Id == CarrelloId)
+                    ?? throw new ArgumentException(Constants.BadRequest);
+                ItemCarrello Itemcarrello = CarrelloOrdine.ItemsCarrello!.FirstOrDefault(x => x.Id == ItemId)
+                    ?? throw new ArgumentException(Constants.BadRequest);
+                if (Quantity <= 0)
+                {
+                    _context.ItemsCarrello.Remove(Itemcarrello);
+                }
+                else
+                {
+                    Itemcarrello.Quantita = Quantity;
+                }
+                _context.SaveChanges();
+                return Ok(JsonConvert.SerializeObject(Itemcarrello, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
+            }
+        }
+
+        [HttpGet]
         [Route("GetAllCarrelloByUserId")]
         [ProducesResponseType(typeof(List<DTO.Ordine.OrdineList>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -405,6 +440,8 @@ namespace AppVideoGameAPI.Controllers
                 {
                     foreach (Models.ItemCarrello Item in CarrelloOrdine.ItemsCarrello!)
                     {
+                        StockVideoGioco StockVideoGame = _context.Stocks.FirstOrDefault(x => x.Id == Item.StockId)
+                            ?? throw new ArgumentException(Constants.BadRequest);
                         OrdineItem OrdineItem = new()
                         {
                             ConsoleGioco = Item.Stock.Console.Nome,
@@ -413,6 +450,7 @@ namespace AppVideoGameAPI.Controllers
                             Quantita = Item.Quantita,
                             Prezzo = Item.Stock.Prezzo,
                             ItemId = Item.Id,
+                            QuanitaRimanenti=StockVideoGame.Quantita,
                         };
                         AllegatoVideoGioco? allegatoVideoGioco = _context.AllegatiVideoGiochi.FirstOrDefault(a => a.VideoGiocoId == Item.Stock.VideoGiocoId);
                         if (allegatoVideoGioco != null)
