@@ -25,5 +25,6 @@ namespace AppVideoGameAPI.Models
         [ValidateNever]
         [ForeignKey(nameof(UserId))]
         public DataUser? DataUser { get; set; }
+        public bool Eliminato { get; set; }
     }
 }

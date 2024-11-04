@@ -10,6 +10,5 @@ namespace AppVideoGameAPI.DTO
     {
         public int Id { get; set; }
         public string NomeTipo { get; set; }
-        public List<MetodoPagamento> MetodiPagamenti { get; set; }
     }
 }
