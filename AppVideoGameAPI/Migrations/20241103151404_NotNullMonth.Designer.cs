@@ -4,6 +4,7 @@ using AppVideoGameAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppVideoGameAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241103151404_NotNullMonth")]
+    partial class NotNullMonth
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -352,41 +355,41 @@ namespace AppVideoGameAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "01997dbe-69a7-4e63-bd5d-6b05dfc78724",
+                            Id = "975ab10c-9e65-4cbc-9821-ee653781cb3e",
                             AccessFailedCount = 0,
                             AccettaUsoDati = false,
                             Cognome = "Sartini",
-                            ConcurrencyStamp = "02258fa4-9cb3-4af3-8a15-d4ba67aa9c41",
+                            ConcurrencyStamp = "8da7a0aa-f79a-4208-a0ab-09d72b8d268e",
                             Email = "fabiansartini@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             Nome = "Fabian",
                             NormalizedEmail = "FABIANSARTINI@GMAIL.COM",
                             NormalizedUserName = "FABIANSARTINI@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJo2899ZcLXtu7CAeFc3j47n0IMlRqQocXVS64M1s67tKvNxcfcGXFzWGXA3QirAWQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPsdm6m+wPQGJC3afBL5Hg9AWXOUIxgO4h+C1bRq+J8ZARp0Z74up8ot7VuDXU5EAA==",
                             PhoneNumberConfirmed = false,
                             SaldoDisponibile = 200.0,
-                            SecurityStamp = "e2203ce7-90ac-46ed-90a3-871c23b63226",
+                            SecurityStamp = "30ac5c9a-49bb-4391-be74-e72144ede291",
                             TwoFactorEnabled = false,
                             UserName = "fabiansartini@gmail.com"
                         },
                         new
                         {
-                            Id = "1d1e09cb-4a1b-461d-bc22-30a4051e91ce",
+                            Id = "b020d857-3be7-496e-b316-3a5643fb324f",
                             AccessFailedCount = 0,
                             AccettaUsoDati = false,
                             Cognome = "Sartini",
-                            ConcurrencyStamp = "ae0d1d9b-b00a-4ec9-b17e-7c38aa513ee2",
+                            ConcurrencyStamp = "f36c06e6-80b0-4ba3-9646-65d1a93580f3",
                             Email = "spaceplayer98@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             Nome = "Fabian",
                             NormalizedEmail = "SPACEPLAYER98@GMAIL.COM",
                             NormalizedUserName = "SPACEPLAYER98@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAECgL/h+13QrPgGxzU8XqG4PPDQdthj1MQZiWgbLl2GzTW+73637xHsZ4lTcmQnaBXw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFnhEUaKbK45slparuHQzqkAtiwYDnl8Gkgn8fx86BuD3FxQADYbKL447nCRmOGQCg==",
                             PhoneNumberConfirmed = false,
                             SaldoDisponibile = 300.0,
-                            SecurityStamp = "3966fedf-041c-43f0-922d-5a2a3bcddd78",
+                            SecurityStamp = "82fa8512-e7ea-4ff1-af6b-d82cc3c3008a",
                             TwoFactorEnabled = false,
                             UserName = "spaceplayer98@gmail.com"
                         });
@@ -539,6 +542,10 @@ namespace AppVideoGameAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("DataUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("NomeCitta")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -550,11 +557,11 @@ namespace AppVideoGameAPI.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("DataUserId");
 
                     b.ToTable("IndirizzoResidenza");
                 });
@@ -1118,12 +1125,12 @@ namespace AppVideoGameAPI.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "01997dbe-69a7-4e63-bd5d-6b05dfc78724",
+                            UserId = "975ab10c-9e65-4cbc-9821-ee653781cb3e",
                             RoleId = "2"
                         },
                         new
                         {
-                            UserId = "1d1e09cb-4a1b-461d-bc22-30a4051e91ce",
+                            UserId = "b020d857-3be7-496e-b316-3a5643fb324f",
                             RoleId = "1"
                         });
                 });
@@ -1276,7 +1283,7 @@ namespace AppVideoGameAPI.Migrations
                 {
                     b.HasOne("AppVideoGameAPI.Models.DataUser", "DataUser")
                         .WithMany("IndirizziResidenza")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("DataUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1425,7 +1432,7 @@ namespace AppVideoGameAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("AppVideoGameAPI.Models.FormatoGioco", "Formato")
-                        .WithMany("StocksVideoGiochi")
+                        .WithMany()
                         .HasForeignKey("FormatoGiocoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1583,11 +1590,6 @@ namespace AppVideoGameAPI.Migrations
                     b.Navigation("MetodiPagamento");
 
                     b.Navigation("Ordini");
-                });
-
-            modelBuilder.Entity("AppVideoGameAPI.Models.FormatoGioco", b =>
-                {
-                    b.Navigation("StocksVideoGiochi");
                 });
 
             modelBuilder.Entity("AppVideoGameAPI.Models.Ordine", b =>

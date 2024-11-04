@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AppVideoGameAPI.Models
 {
@@ -13,7 +15,7 @@ namespace AppVideoGameAPI.Models
         public string? NomeCitta { get; set; }
         [Required]
         public string? UserId { get; set; }
-        [Required]
+        [ForeignKey(nameof(UserId))]
         public DataUser? DataUser { get; set; }
     }
 }

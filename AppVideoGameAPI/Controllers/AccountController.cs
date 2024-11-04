@@ -150,7 +150,77 @@ namespace AppVideoGameAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
-
+        [HttpGet]
+        [Route("GetAllIndirizzi")]
+        [ProducesResponseType(typeof(List<DTO.Ordine.OrdineList>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetAllIndirizzi(string userId)
+        {
+            try
+            {
+                List<Models.IndirizzoResidenza> IndirizziResidenza =
+                     [.. _context.IndirizzoResidenza.Where(x => x.UserId == userId)];
+                List<DTO.IndirizzoResidenza> Result = [];
+                foreach (Models.IndirizzoResidenza ind in IndirizziResidenza)
+                {
+                    DTO.IndirizzoResidenza Indir = new()
+                    {
+                        Id = ind.Id,
+                        Indirizzo=ind.NomeIndirizzo!,
+                        Citta=ind.NomeCitta!
+                    };
+                    Result.Add(Indir);
+                }
+                return Ok(JsonConvert.SerializeObject(Result, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        [HttpPost]
+        [Route("CreateEditIndirizzo")]
+        [ProducesResponseType(typeof(List<DTO.Ordine.OrdineList>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public  IActionResult  CreateEditIndirizzo([FromBody] IndirzzoUtenteVM DataSent)
+        {
+            try
+            {
+                if (!TryValidateModel(DataSent))
+                {
+                    throw new ArgumentException(Constants.BadRequest);
+                }
+                Models.IndirizzoResidenza IndirizzoResidenza = new()
+                {
+                   Id = DataSent.Id,
+                   NomeCitta = DataSent.NomeCitta,
+                   NomeIndirizzo=DataSent.NomeIndirizzo,
+                   UserId = DataSent.UserId,
+                   
+                };
+                if (DataSent.Id == 0) { 
+                    _context.IndirizzoResidenza.Add(IndirizzoResidenza);
+                }
+                else
+                {
+                    _context.IndirizzoResidenza.Update(IndirizzoResidenza);
+                }
+                _context.SaveChanges();
+                return Ok(JsonConvert.SerializeObject(IndirizzoResidenza, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
         [HttpPost]
         [Route("AddAllegato")]
         [ProducesResponseType(StatusCodes.Status200OK)]

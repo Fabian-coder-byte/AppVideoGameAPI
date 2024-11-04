@@ -221,6 +221,7 @@ namespace AppVideoGameAPI.Controllers
                 if (!TryValidateModel(ObjSent)) return BadRequest();
                 DataUser Utente = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == ObjSent.UtenteId)
                     ?? throw new ArgumentException(Constants.UtenteNontrovato);
+                
                 Ordine NewOrder = new()
                 {
                     Data = ObjSent.Data,
@@ -471,52 +472,7 @@ namespace AppVideoGameAPI.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("GetAllMetodiPagamento")]
-        [ProducesResponseType(typeof(List<DTO.Ordine.OrdineList>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult GetAllMetodiPagamento(string userId)
-        {
-            try
-            {
-                List<Models.MetodoPagamento> MetodiPagamento =
-                     [.. _context.MetodoPagamento.Where(x => x.UserId==userId)];
-                List<Models.TipoPagamento> TipoPagamento = [.. _context.TipoPagemento];
-                List<DTO.TipoPagamento> Result = [];
-                foreach (Models.TipoPagamento tipo in TipoPagamento)
-                {
-                    DTO.TipoPagamento TipoPagObj = new()
-                    {
-                        Id = tipo.Id,
-                        NomeTipo=tipo.Nome,
-                        MetodiPagamenti = []
-                    };
-                    foreach(Models.MetodoPagamento met in MetodiPagamento.Where(x=>x.TipoPagamentoId==tipo.Id))
-                    {
-                        DTO.MetodoPagamento MetodoPagmanto = new()
-                        {
-                            Id=met.Id,
-                            CVC=met.CVC,
-                            DataScadenza=met.DataScadenza,
-                            NumeroCarta=met.NumeroCarta,
-                            SaldoDisponibile=met.SaldoDisponibile,
-                        };
-                        TipoPagObj.MetodiPagamenti.Add(MetodoPagmanto);
-                    }
-                    Result.Add(TipoPagObj);
-                }
-
-                return Ok(JsonConvert.SerializeObject(Result, new JsonSerializerSettings()
-                {
-                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
-                    Formatting = Formatting.Indented,
-                }));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
+        
 
 
     }

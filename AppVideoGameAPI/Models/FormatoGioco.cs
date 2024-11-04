@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace AppVideoGameAPI.Models
 {
@@ -9,5 +10,7 @@ namespace AppVideoGameAPI.Models
         [StringLength(100)]
         public string? Nome { get; set; }
         public string? Descrizione { get; set; }
+        [ValidateNever]
+        public ICollection<StockVideoGioco>? StocksVideoGiochi { get; set; }
     }
 }

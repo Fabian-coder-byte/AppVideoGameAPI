@@ -8,5 +8,6 @@ namespace AppVideoGameAPI.DTO
         public int CVC { get; set; }
         public DateOnly DataScadenza { get; set; }
         public double SaldoDisponibile { get; set; }
+        public string TipoPagamento { get; set; }
     }
 }
