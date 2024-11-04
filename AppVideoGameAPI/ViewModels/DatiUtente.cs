@@ -8,5 +8,6 @@
         public string UserId { get; set; }
         public string Ruolo { get; set; }
         public string CodeImage { get; set; }
+        public string Phone { get; set; }
     }
 }

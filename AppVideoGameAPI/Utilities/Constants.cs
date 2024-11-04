@@ -16,5 +16,6 @@
         public const string CartaScaduta = "La Carta Selezionata è Scaduta";
         public const string OrdineNotFound = "Non è stato trovato l'ordine";
         public const string MetodoPagamentoNotFound = "Non è stato trovato l'ordine";
+        public const string IndirizzoNotFound = "Non è stato trovato l'ordine";
     }
 }

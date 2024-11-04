@@ -9,5 +9,6 @@ namespace AppVideoGameAPI.DTO
         public DateOnly DataScadenza { get; set; }
         public double SaldoDisponibile { get; set; }
         public string TipoPagamento { get; set; }
+        public string Intestatario { get; set; }
     }
 }

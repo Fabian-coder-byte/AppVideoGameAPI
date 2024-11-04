@@ -13,6 +13,8 @@ namespace AppVideoGameAPI.Models
         public int CVC { get; set; }
         [Required]  
         public DateOnly DataScadenza { get; set; }
+        [Required]
+        public string? Intestatario { get; set; }
         public int TipoPagamentoId { get; set; }
         [ForeignKey(nameof(TipoPagamentoId))]
         [Required]

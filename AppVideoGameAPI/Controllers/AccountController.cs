@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using PoolBookingApp.Models;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -34,8 +35,8 @@ namespace AppVideoGameAPI.Controllers
             IOptions<JwtBearerTokenSettings> jwtTokenOptions) : base(context, mapper)
         {
             _logger = logger;
-            _userManager=userManager;
-            _roleManager=roleManager;
+            _userManager = userManager;
+            _roleManager = roleManager;
             _jwtBearerTokenSettings = jwtTokenOptions.Value;
         }
 
@@ -79,7 +80,7 @@ namespace AppVideoGameAPI.Controllers
         {
             try
             {
-               
+
 
                 if (!credentials.Password!.Equals(credentials.PasswordConfermata))
                 {
@@ -125,17 +126,18 @@ namespace AppVideoGameAPI.Controllers
             try
             {
                 string? email = (User?.Identity?.Name) ?? throw new ArgumentNullException("Utente non trovato");
-                string? ruolo= (User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) ?? throw new ArgumentException("Wuolo non trovato");
+                string? ruolo = (User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value) ?? throw new ArgumentException("Wuolo non trovato");
                 DataUser UtenteLOggato = await _userManager.FindByEmailAsync(email) ?? throw new ArgumentException("Errore Utente");
                 DatiUtente DatiUtente = new()
                 {
-                    Cognome=UtenteLOggato.Cognome!,
-                    Email=email,
-                    Nome=UtenteLOggato.Nome!,
-                    UserId=UtenteLOggato.Id,
-                    Ruolo=ruolo
+                    Cognome = UtenteLOggato.Cognome!,
+                    Email = email,
+                    Nome = UtenteLOggato.Nome!,
+                    UserId = UtenteLOggato.Id,
+                    Ruolo = ruolo,
+                    Phone = UtenteLOggato.PhoneNumber!
                 };
-                AllegatoUtente? allegatoUtente = _context.AllegatiUtente.FirstOrDefault(a => a.UserId == UtenteLOggato.Id);
+                AllegatoUtente? allegatoUtente = _context.AllegatiUtente.FirstOrDefault(a => a.UserId == UtenteLOggato.Id && a.TipoAllegatoId==1);
                 if (allegatoUtente != null)
                     DatiUtente.CodeImage = Convert.ToBase64String(allegatoUtente.Content!);
                 return Ok(JsonConvert.SerializeObject(DatiUtente, new JsonSerializerSettings()
@@ -166,8 +168,8 @@ namespace AppVideoGameAPI.Controllers
                     DTO.IndirizzoResidenza Indir = new()
                     {
                         Id = ind.Id,
-                        Indirizzo=ind.NomeIndirizzo!,
-                        Citta=ind.NomeCitta!
+                        Indirizzo = ind.NomeIndirizzo!,
+                        Citta = ind.NomeCitta!
                     };
                     Result.Add(Indir);
                 }
@@ -186,7 +188,7 @@ namespace AppVideoGameAPI.Controllers
         [Route("CreateEditIndirizzo")]
         [ProducesResponseType(typeof(List<DTO.Ordine.OrdineList>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public  IActionResult  CreateEditIndirizzo([FromBody] IndirzzoUtenteVM DataSent)
+        public IActionResult CreateEditIndirizzo([FromBody] IndirzzoUtenteVM DataSent)
         {
             try
             {
@@ -196,13 +198,14 @@ namespace AppVideoGameAPI.Controllers
                 }
                 Models.IndirizzoResidenza IndirizzoResidenza = new()
                 {
-                   Id = DataSent.Id,
-                   NomeCitta = DataSent.NomeCitta,
-                   NomeIndirizzo=DataSent.NomeIndirizzo,
-                   UserId = DataSent.UserId,
-                   
+                    Id = DataSent.Id,
+                    NomeCitta = DataSent.NomeCitta,
+                    NomeIndirizzo = DataSent.NomeIndirizzo,
+                    UserId = DataSent.UserId,
+
                 };
-                if (DataSent.Id == 0) { 
+                if (DataSent.Id == 0)
+                {
                     _context.IndirizzoResidenza.Add(IndirizzoResidenza);
                 }
                 else
@@ -221,27 +224,162 @@ namespace AppVideoGameAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+        [HttpGet]
+        [Route("GetByIdIndirizzo")]
+        [ProducesResponseType(typeof(List<DTO.Ordine.OrdineList>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetByIdIndirizzo(int Id)
+        {
+            try
+            {
+                if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
+                IndirizzoResidenza IndirizzoResidenza = _context.IndirizzoResidenza.FirstOrDefault(x => x.Id == Id)
+                    ?? throw new ArgumentException(Constants.IndirizzoNotFound);
+                    DTO.IndirizzoResidenza Result = new()
+                    {
+                        Id = IndirizzoResidenza.Id,
+                        Indirizzo = IndirizzoResidenza.NomeIndirizzo!,
+                        Citta = IndirizzoResidenza.NomeCitta!
+                    };
+                return Ok(JsonConvert.SerializeObject(Result, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("RemoveIndirizzo")]
+        [ProducesResponseType(typeof(List<DTO.Ordine.OrdineList>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RemoveIndirizzo(string userId, int indirizzoId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    throw new ArgumentException(Constants.BadRequest);
+                }
+                Models.DataUser Utente = await _context.Users
+                    .Include(x=>x.IndirizziResidenza)
+                 .FirstOrDefaultAsync(u => u.Id == userId)
+                 ?? throw new ArgumentException(Constants.BadRequest);
+                IndirizzoResidenza IndirizzoResidenza = _context.IndirizzoResidenza.FirstOrDefault(x=>x.Id==indirizzoId)
+                    ?? throw new ArgumentException(Constants.BadRequest);  
+                Utente.IndirizziResidenza!.Remove(IndirizzoResidenza);
+                _context.IndirizzoResidenza.Remove(IndirizzoResidenza);
+                _context.SaveChanges();
+                return Ok(JsonConvert.SerializeObject(IndirizzoResidenza, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        [HttpPost]
+        [Route("EditProfile")]
+        [ProducesResponseType(typeof(List<DTO.Ordine.OrdineList>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> EditProfile([FromBody] EditProfileVM DataSent)
+        {
+            try
+            {
+                if (!TryValidateModel(DataSent))
+                {
+                    throw new ArgumentException(Constants.BadRequest);
+                }
+                Models.DataUser Utente = await _context.Users
+                  .FirstOrDefaultAsync(u => u.Id == DataSent.UserId)
+                  ?? throw new ArgumentException(Constants.BadRequest);
+                Utente.Nome = DataSent.Nome;
+                Utente.Cognome = DataSent?.Cognome;
+                Utente.PhoneNumber = DataSent?.Telefono;
+                _context.SaveChanges();
+                return Ok(JsonConvert.SerializeObject(Utente, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("ChangePassword")]
+        [ProducesResponseType(typeof(List<DTO.Ordine.OrdineList>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordVM DataSent)
+        {
+            try
+            {
+                if (!TryValidateModel(DataSent))
+                {
+                    throw new ArgumentException(Constants.BadRequest);
+                }
+                Models.DataUser Utente = await _context.Users
+                  .FirstOrDefaultAsync(u => u.Id == DataSent.UserId)
+                  ?? throw new ArgumentException(Constants.BadRequest);
+                IdentityResult result = await _userManager.ChangePasswordAsync(Utente, DataSent.PasswordCorrente!.Trim()!, DataSent.NuovaPassword!.Trim()!);
+                if (!result.Succeeded)
+                {
+                    throw new ArgumentException(Constants.BadRequest);
+                }
+                await _userManager.UpdateAsync(Utente);
+                _context.SaveChanges();
+                return Ok(JsonConvert.SerializeObject(Utente, new JsonSerializerSettings()
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    Formatting = Formatting.Indented,
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
         [HttpPost]
         [Route("AddAllegato")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult>  AddAllegato(UtenteAllegatoVM ObjSent)
+        public async Task<IActionResult> AddAllegato( UtenteAllegatoVM ObjSent)
         {
             try
             {
                 if (!TryValidateModel(ObjSent)) return BadRequest();
+                AllegatoUtente? FotoProfilo = _context.AllegatiUtente.FirstOrDefault(x=>x.UserId==ObjSent.UtenteId);
+
                 Models.DataUser Utente = await _context.Users
-                    .Include(u => u.AllegatiUtenti) 
+                    .Include(u => u.AllegatiUtenti)
                     .FirstOrDefaultAsync(u => u.Id == ObjSent.UtenteId)
                     ?? throw new ArgumentException(Constants.BadRequest);
+                if (FotoProfilo!=null)
+                {
+                    foreach(var im in Utente.AllegatiUtenti!.Where(x=>x.TipoAllegatoId==1))
+                    {
+                        Utente.AllegatiUtenti!.Remove(im);
+                        _context.AllegatiUtente.Remove(im);
+                    }
+                }
                 foreach (IFormFile el in ObjSent.FileCaricato)
                 {
                     using BinaryReader reader = new(el.OpenReadStream());
-                    Utente.AllegatiUtenti.Add(new()
+                    Utente.AllegatiUtenti!.Add(new()
                     {
                         Content = reader.ReadBytes((int)el.Length),
                         NomeFile = el.FileName,
                         UserId = Utente.Id,
+                        TipoAllegatoId=1
                     });
                 }
                 _context.SaveChanges();

@@ -4,6 +4,7 @@ using AppVideoGameAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppVideoGameAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241104082838_IntestatarioCarta")]
+    partial class IntestatarioCarta
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -352,41 +355,41 @@ namespace AppVideoGameAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "ca15ad04-2ce1-4dc6-b19f-12798c1bf089",
+                            Id = "fd94746f-3b7f-44bf-a210-3a1f1a2b4552",
                             AccessFailedCount = 0,
                             AccettaUsoDati = false,
                             Cognome = "Sartini",
-                            ConcurrencyStamp = "9d46edd5-3f23-4c8c-990d-9fc6ae08c23c",
+                            ConcurrencyStamp = "73e9109e-a4b8-4f5c-8f22-87de81a1bc29",
                             Email = "fabiansartini@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             Nome = "Fabian",
                             NormalizedEmail = "FABIANSARTINI@GMAIL.COM",
                             NormalizedUserName = "FABIANSARTINI@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEM7xXYjFEMk/NhuKjRsFjbyNh4fyTd1+svnhgI/nW9LB5o5y0EdUD2EP0851R/6rGg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKZLmQ5c1wWsB5dwOAyDTiUH5uLkt/O8VDH3ofCEooPmOk3QhQao2qLF3bK9naC/xQ==",
                             PhoneNumberConfirmed = false,
                             SaldoDisponibile = 200.0,
-                            SecurityStamp = "fe15309b-0721-4f99-9176-4c0257f61b48",
+                            SecurityStamp = "9ced6a7e-a009-42cf-942c-2201f7c47f9b",
                             TwoFactorEnabled = false,
                             UserName = "fabiansartini@gmail.com"
                         },
                         new
                         {
-                            Id = "676e7dd8-7527-4727-a8ee-710306429427",
+                            Id = "03b2001b-2849-4fa2-ab39-c1d6c31feb33",
                             AccessFailedCount = 0,
                             AccettaUsoDati = false,
                             Cognome = "Sartini",
-                            ConcurrencyStamp = "f2d3af74-1dac-40c3-93e2-9b1cc508f386",
+                            ConcurrencyStamp = "9d8afb99-1874-4a44-8e25-e503d6de7bbc",
                             Email = "spaceplayer98@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             Nome = "Fabian",
                             NormalizedEmail = "SPACEPLAYER98@GMAIL.COM",
                             NormalizedUserName = "SPACEPLAYER98@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKXP5ITDLbAHxzN2qmm3+6XK0eurrhLvloMhCyfZpca2Wxl2GP53cTM/ouWrnHF01A==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOPxBpWK/5XJX68kY/wJ7B5qTFnbY8ozyMKx6gQAPg9Q2bIErsawtgu1JQ0WpKNfxg==",
                             PhoneNumberConfirmed = false,
                             SaldoDisponibile = 300.0,
-                            SecurityStamp = "f0d3b086-1703-4985-8103-e878f687b576",
+                            SecurityStamp = "604b1c07-4ebd-4d69-8ed6-47cabb8773ac",
                             TwoFactorEnabled = false,
                             UserName = "spaceplayer98@gmail.com"
                         });
@@ -539,6 +542,10 @@ namespace AppVideoGameAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Intestatario")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("NomeCitta")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -630,10 +637,6 @@ namespace AppVideoGameAPI.Migrations
 
                     b.Property<DateOnly>("DataScadenza")
                         .HasColumnType("date");
-
-                    b.Property<string>("Intestatario")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NumeroCarta")
                         .HasColumnType("nvarchar(max)");
@@ -1122,12 +1125,12 @@ namespace AppVideoGameAPI.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "ca15ad04-2ce1-4dc6-b19f-12798c1bf089",
+                            UserId = "fd94746f-3b7f-44bf-a210-3a1f1a2b4552",
                             RoleId = "2"
                         },
                         new
                         {
-                            UserId = "676e7dd8-7527-4727-a8ee-710306429427",
+                            UserId = "03b2001b-2849-4fa2-ab39-c1d6c31feb33",
                             RoleId = "1"
                         });
                 });

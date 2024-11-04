@@ -36,7 +36,8 @@ namespace AppVideoGameAPI.Controllers
                         Id = metodo.Id,
                         NumeroCarta = metodo.NumeroCarta,
                         SaldoDisponibile = metodo.SaldoDisponibile,
-                        TipoPagamento = metodo.TipoPagamento!.Nome!
+                        TipoPagamento = metodo.TipoPagamento!.Nome!,
+                       Intestatario=metodo.Intestatario!
                     };
                     Result.Add(Metodo);
                 }
@@ -73,6 +74,7 @@ namespace AppVideoGameAPI.Controllers
                     Id = DataSent.Id,
                     SaldoDisponibile=DataSent.SaldoDisponibile,
                     TipoPagamentoId=DataSent.TipoPagamentoId,
+                    Intestatario=DataSent.Intestatario
                 };
                 _context.MetodoPagamento.Add(MetodoPagamento);
                 _context.SaveChanges();

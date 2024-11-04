@@ -8,6 +8,7 @@
         public DateOnly DataScadenza { get; set; }
         public int TipoPagamentoId { get; set; }
         public double SaldoDisponibile { get; set; }
+        public string Intestatario { get; set; }
         public string? UserId { get; set; }
     }
 }
