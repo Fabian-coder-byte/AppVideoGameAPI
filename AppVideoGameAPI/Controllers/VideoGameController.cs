@@ -70,13 +70,21 @@ namespace AppVideoGameAPI.Controllers
             try
             {
                 if (!TryValidateModel(ObjSent)) return BadRequest();
+                Models.CaratteristichaTecnica CarTecnica = new()
+                {
+                    CPU = ObjSent.CPU,
+                    GPU = ObjSent.GPU,
+                    Memoria = ObjSent.Memoria,
+                    SchedaArchiviazione = ObjSent.SchedaArchiviazione,
+                    AdditionalNotes = ObjSent.DescrizioneTecnica
+                };
                 Models.VideoGioco NewVideoGame = new()
                 {
                     CasaProduttriceId = ObjSent.CasaProduttriceId,
                     DataRilascio = ObjSent.DataRilascio,
                     Descrizione = ObjSent.Descrizione,
                     Nome = ObjSent.Nome,
-                    CaratteristicaTecnicaId=ObjSent.CaratteristicaTecnicaId
+                    RequisitoTecnico= CarTecnica
                 };
                 _context.VideoGiochi.Add(NewVideoGame);
                 _context.SaveChanges();
