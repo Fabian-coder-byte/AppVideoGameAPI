@@ -17,5 +17,6 @@
         public const string OrdineNotFound = "Non è stato trovato l'ordine";
         public const string MetodoPagamentoNotFound = "Non è stato trovato nessun metodo pagamento";
         public const string IndirizzoNotFound = "Non è stato trovato l'indirizzo";
+        public const string GenereNotFound = "Non è stato trovato il genere";
     }
 }

@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using PoolBookingApp.Models;
 using System.Collections.Immutable;
 using System.Security.Cryptography;
 

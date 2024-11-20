@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using PoolBookingApp.Models;
 
 namespace AppVideoGameAPI.Controllers
 {
@@ -65,19 +64,25 @@ namespace AppVideoGameAPI.Controllers
         [Route("Create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult Create([FromBody] DTO.VideoGame.VideoGame ObjSent)
+        public IActionResult Create( VideoGameCreateVM ObjSent)
         {
             try
             {
                 if (!TryValidateModel(ObjSent)) return BadRequest();
-                Models.CaratteristichaTecnica CarTecnica = new()
+                Models.CaratteristichaTecnica CarTecnica = null;
+                if (ObjSent.CPU!=null && ObjSent.GPU!=null && ObjSent.Memoria!=null && ObjSent.Memoria != null)
                 {
-                    CPU = ObjSent.CPU,
-                    GPU = ObjSent.GPU,
-                    Memoria = ObjSent.Memoria,
-                    SchedaArchiviazione = ObjSent.SchedaArchiviazione,
-                    AdditionalNotes = ObjSent.DescrizioneTecnica
-                };
+                     CarTecnica = new()
+                    {
+                        CPU = ObjSent.CPU,
+                        GPU = ObjSent.GPU,
+                        Memoria = ObjSent.Memoria,
+                        SchedaArchiviazione = ObjSent.SchedaArchiviazione,
+                        AdditionalNotes = ObjSent.DescrizioneTecnica
+                    };
+                }
+                
+            
                 Models.VideoGioco NewVideoGame = new()
                 {
                     CasaProduttriceId = ObjSent.CasaProduttriceId,
@@ -86,6 +91,56 @@ namespace AppVideoGameAPI.Controllers
                     Nome = ObjSent.Nome,
                     RequisitoTecnico= CarTecnica
                 };
+                NewVideoGame.AllegatiVideoGiochi = [];
+                if (ObjSent.FotoGioco != null)
+                {
+                    using BinaryReader reader = new(ObjSent.FotoGioco.OpenReadStream());
+                    NewVideoGame.AllegatiVideoGiochi!.Add(new()
+                    {
+                        Content = reader.ReadBytes((int)ObjSent.FotoGioco.Length),
+                        NomeFile = ObjSent.FotoGioco.FileName,
+                        VideoGioco = NewVideoGame,
+                        TipoAllegatoId = 5
+                    });
+                }
+                if(ObjSent.FotoSlider != null)
+                {
+                    foreach (IFormFile ImgSlider in ObjSent.FotoSlider)
+                    {
+                        using BinaryReader reader = new(ImgSlider.OpenReadStream());
+                        NewVideoGame.AllegatiVideoGiochi!.Add(new()
+                        {
+                            Content = reader.ReadBytes((int)ImgSlider.Length),
+                            NomeFile = ImgSlider.FileName,
+                            VideoGioco = NewVideoGame,
+                            TipoAllegatoId = 2
+                        });
+                    }
+                }
+                if (ObjSent.Video != null)
+                {
+                    foreach (IFormFile Video in ObjSent.Video)
+                    {
+                        using BinaryReader reader = new(Video.OpenReadStream());
+                        NewVideoGame.AllegatiVideoGiochi!.Add(new()
+                        {
+                            Content = reader.ReadBytes((int)Video.Length),
+                            NomeFile = Video.FileName,
+                            VideoGioco = NewVideoGame,
+                            TipoAllegatoId = 3
+                        });
+                    }
+                }
+                NewVideoGame.Generi = [];
+                if (ObjSent.Generi != null)
+                {
+                    foreach (int Gen in ObjSent.Generi)
+                    {
+                        Genere Genere = _context.Generi.FirstOrDefault(x=>x.Id == Gen) ?? throw new ArgumentException(Constants.GenereNotFound);
+                        NewVideoGame.Generi!.Add(Genere);
+                    }
+                }
+             
                 _context.VideoGiochi.Add(NewVideoGame);
                 _context.SaveChanges();
                 return Ok(JsonConvert.SerializeObject(NewVideoGame, new JsonSerializerSettings()
