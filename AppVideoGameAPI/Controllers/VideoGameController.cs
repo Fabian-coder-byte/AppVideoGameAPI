@@ -4,6 +4,7 @@ using AppVideoGameAPI.DTO.VideoGame;
 using AppVideoGameAPI.Models;
 using AppVideoGameAPI.Utilities;
 using AppVideoGameAPI.ViewModels;
+using AppVideoGameAPI.ViewModels.VideoGiochi;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -64,15 +65,15 @@ namespace AppVideoGameAPI.Controllers
         [Route("Create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult Create( VideoGameCreateVM ObjSent)
+        public IActionResult Create(VideoGameCreateVM ObjSent)
         {
             try
             {
                 if (!TryValidateModel(ObjSent)) return BadRequest();
                 Models.CaratteristichaTecnica CarTecnica = null;
-                if (ObjSent.CPU!=null && ObjSent.GPU!=null && ObjSent.Memoria!=null && ObjSent.Memoria != null)
+                if (ObjSent.CPU != null && ObjSent.GPU != null && ObjSent.Memoria != null && ObjSent.Memoria != null)
                 {
-                     CarTecnica = new()
+                    CarTecnica = new()
                     {
                         CPU = ObjSent.CPU,
                         GPU = ObjSent.GPU,
@@ -81,15 +82,15 @@ namespace AppVideoGameAPI.Controllers
                         AdditionalNotes = ObjSent.DescrizioneTecnica
                     };
                 }
-                
-            
+
+
                 Models.VideoGioco NewVideoGame = new()
                 {
                     CasaProduttriceId = ObjSent.CasaProduttriceId,
                     DataRilascio = ObjSent.DataRilascio,
                     Descrizione = ObjSent.Descrizione,
                     Nome = ObjSent.Nome,
-                    RequisitoTecnico= CarTecnica
+                    RequisitoTecnico = CarTecnica
                 };
                 NewVideoGame.AllegatiVideoGiochi = [];
                 if (ObjSent.FotoGioco != null)
@@ -103,7 +104,7 @@ namespace AppVideoGameAPI.Controllers
                         TipoAllegatoId = 5
                     });
                 }
-                if(ObjSent.FotoSlider != null)
+                if (ObjSent.FotoSlider != null)
                 {
                     foreach (IFormFile ImgSlider in ObjSent.FotoSlider)
                     {
@@ -136,11 +137,11 @@ namespace AppVideoGameAPI.Controllers
                 {
                     foreach (int Gen in ObjSent.Generi)
                     {
-                        Genere Genere = _context.Generi.FirstOrDefault(x=>x.Id == Gen) ?? throw new ArgumentException(Constants.GenereNotFound);
+                        Genere Genere = _context.Generi.FirstOrDefault(x => x.Id == Gen) ?? throw new ArgumentException(Constants.GenereNotFound);
                         NewVideoGame.Generi!.Add(Genere);
                     }
                 }
-             
+
                 _context.VideoGiochi.Add(NewVideoGame);
                 _context.SaveChanges();
                 return Ok(JsonConvert.SerializeObject(NewVideoGame, new JsonSerializerSettings()
@@ -156,6 +157,57 @@ namespace AppVideoGameAPI.Controllers
 
             }
         }
+
+        [HttpPost]
+        [Route("EditDati")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult EditDati(EditdataVideoGameVM ObjSent)
+        {
+            try
+            {
+                if (!TryValidateModel(ObjSent)) return BadRequest();
+                Models.VideoGioco VideoGioco = _context.VideoGiochi.FirstOrDefault(x => x.Id == ObjSent.Id)
+                    ?? throw new ArgumentException(Constants.VideoGameNotFound);
+                VideoGioco.Nome = ObjSent.Nome;
+                VideoGioco.Descrizione = ObjSent.Descrizione;
+                VideoGioco.DataRilascio = ObjSent.DataRilascio;
+                VideoGioco.CasaProduttriceId = ObjSent.CasaProduttriceId;
+                _context.SaveChanges();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("EditGeneri")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult EditGeneri(EditGeneriVM ObjSent)
+        {
+            try
+            {
+                if (!TryValidateModel(ObjSent)) return BadRequest();
+                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x=>x.Generi).FirstOrDefault(x => x.Id == ObjSent.Id)
+                    ?? throw new ArgumentException(Constants.VideoGameNotFound);
+                VideoGioco.Generi!.Clear();
+                var nuoviGeneri = _context.Generi.Where(x=>ObjSent.Generi!.Contains(x.Id)).ToList();
+                foreach (var gen in nuoviGeneri)
+                {
+                    VideoGioco.Generi.Add(gen);
+                }
+                _context.SaveChanges();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
 
         [HttpPost]
         [Route("AddAllegato")]
@@ -178,7 +230,7 @@ namespace AppVideoGameAPI.Controllers
                         Content = reader.ReadBytes((int)el.Length),
                         NomeFile = el.FileName,
                         VideoGiocoId = VideoGioco.Id,
-                        TipoAllegatoId=ObjSent.TipoAllegatoId
+                        TipoAllegatoId = ObjSent.TipoAllegatoId
                     });
                 }
                 _context.SaveChanges();
@@ -279,7 +331,7 @@ namespace AppVideoGameAPI.Controllers
                 Models.CaratteristichaTecnica? RequisitoVideoGame = VideoGioco.RequisitoTecnico;
                 if (RequisitoVideoGame != null)
                 {
-                     RequisitiPCObj = new()
+                    RequisitiPCObj = new()
                     {
                         Id = RequisitoVideoGame!.Id,
                         CPU = RequisitoVideoGame.CPU,
@@ -312,14 +364,14 @@ namespace AppVideoGameAPI.Controllers
             try
             {
                 if (!ModelState.IsValid) throw new ArgumentException(Constants.BadRequest);
-                Models.StockVideoGioco StockGame = _context.Stocks.Include(x => x.VideoGioco).ThenInclude(x=>x.Generi).FirstOrDefault(x => x.Id == Id) ?? throw new ArgumentException(Constants.VideoGameNotFound);
+                Models.StockVideoGioco StockGame = _context.Stocks.Include(x => x.VideoGioco).ThenInclude(x => x.Generi).FirstOrDefault(x => x.Id == Id) ?? throw new ArgumentException(Constants.VideoGameNotFound);
 
                 List<Models.Genere> GenereData = [.. StockGame.VideoGioco!.Generi!];
                 foreach (Models.Genere Gen in GenereData)
                 {
                     DTO.VideoGame.ListaGeneriGioco GenereGioco = new()
                     {
-                        Id=Gen.Id,
+                        Id = Gen.Id,
                         NomeGenere = Gen.Nome!
                     };
                     GeneriList.Add(GenereGioco);
