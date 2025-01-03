@@ -16,8 +16,7 @@ namespace AppVideoGameAPI.Models
         [Required]
         public int CasaProduttriceId { get; set; }
         [ForeignKey(nameof(CasaProduttriceId))]
-        public int CaratteristicaTecnicaId { get; set; }
-        [Required]
+        public int? CaratteristicaTecnicaId { get; set; }
         [ForeignKey(nameof(CaratteristicaTecnicaId))]
         public CaratteristichaTecnica? RequisitoTecnico { get; set; }
         [ValidateNever]

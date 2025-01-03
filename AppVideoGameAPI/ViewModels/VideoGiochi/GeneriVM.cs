@@ -1,6 +1,6 @@
 ﻿namespace AppVideoGameAPI.ViewModels.VideoGiochi
 {
-    public class EditGeneriVM
+    public class GeneriVM
     {
         public int Id { get; set; }
         public List<int>? Generi { get; set; }

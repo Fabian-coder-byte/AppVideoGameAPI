@@ -70,78 +70,74 @@ namespace AppVideoGameAPI.Controllers
             try
             {
                 if (!TryValidateModel(ObjSent)) return BadRequest();
-                Models.CaratteristichaTecnica CarTecnica = null;
-                if (ObjSent.CPU != null && ObjSent.GPU != null && ObjSent.Memoria != null && ObjSent.Memoria != null)
-                {
-                    CarTecnica = new()
-                    {
-                        CPU = ObjSent.CPU,
-                        GPU = ObjSent.GPU,
-                        Memoria = ObjSent.Memoria,
-                        SchedaArchiviazione = ObjSent.SchedaArchiviazione,
-                        AdditionalNotes = ObjSent.DescrizioneTecnica
-                    };
-                }
+                //Oggetto caratteristoca tecnica
+                Models.CaratteristichaTecnica? CarTecnica = ObjSent.RequisitoVM != null ?
+                    _mapper.Map<Models.CaratteristichaTecnica>(ObjSent.RequisitoVM)
+                    : null;
 
-
+                if (ObjSent.DataVideoGame == null) throw new ArgumentException(Constants.VideoGameNotFound);
+                DataVideoGameVM DataVideoGame = ObjSent.DataVideoGame;
                 Models.VideoGioco NewVideoGame = new()
                 {
-                    CasaProduttriceId = ObjSent.CasaProduttriceId,
-                    DataRilascio = ObjSent.DataRilascio,
-                    Descrizione = ObjSent.Descrizione,
-                    Nome = ObjSent.Nome,
-                    RequisitoTecnico = CarTecnica
+                    CasaProduttriceId = DataVideoGame.CasaProduttriceId,
+                    DataRilascio = DataVideoGame.DataRilascio,
+                    Descrizione = DataVideoGame.Descrizione,
+                    Nome = DataVideoGame.Nome,
+                    RequisitoTecnico = CarTecnica,
+                    AllegatiVideoGiochi = [],
+                    Generi = []
                 };
-                NewVideoGame.AllegatiVideoGiochi = [];
-                if (ObjSent.FotoGioco != null)
+                if (ObjSent.FotoVideo != null)
                 {
-                    using BinaryReader reader = new(ObjSent.FotoGioco.OpenReadStream());
-                    NewVideoGame.AllegatiVideoGiochi!.Add(new()
+                    FotoVideoVM FotoVideoObj = ObjSent.FotoVideo;
+                    if (FotoVideoObj.FotoGioco != null)
                     {
-                        Content = reader.ReadBytes((int)ObjSent.FotoGioco.Length),
-                        NomeFile = ObjSent.FotoGioco.FileName,
-                        VideoGioco = NewVideoGame,
-                        TipoAllegatoId = 5
-                    });
-                }
-                if (ObjSent.FotoSlider != null)
-                {
-                    foreach (IFormFile ImgSlider in ObjSent.FotoSlider)
-                    {
-                        using BinaryReader reader = new(ImgSlider.OpenReadStream());
+                        using BinaryReader reader = new(FotoVideoObj.FotoGioco.OpenReadStream());
                         NewVideoGame.AllegatiVideoGiochi!.Add(new()
                         {
-                            Content = reader.ReadBytes((int)ImgSlider.Length),
-                            NomeFile = ImgSlider.FileName,
+                            Content = reader.ReadBytes((int)FotoVideoObj.FotoGioco.Length),
+                            NomeFile = FotoVideoObj.FotoGioco.FileName,
                             VideoGioco = NewVideoGame,
-                            TipoAllegatoId = 2
+                            TipoAllegatoId = 5
                         });
                     }
-                }
-                if (ObjSent.Video != null)
-                {
-                    foreach (IFormFile Video in ObjSent.Video)
+                    if (FotoVideoObj.FotoSlider != null)
                     {
-                        using BinaryReader reader = new(Video.OpenReadStream());
-                        NewVideoGame.AllegatiVideoGiochi!.Add(new()
+                        foreach (IFormFile ImgSlider in FotoVideoObj.FotoSlider)
                         {
-                            Content = reader.ReadBytes((int)Video.Length),
-                            NomeFile = Video.FileName,
-                            VideoGioco = NewVideoGame,
-                            TipoAllegatoId = 3
-                        });
+                            using BinaryReader reader = new(ImgSlider.OpenReadStream());
+                            NewVideoGame.AllegatiVideoGiochi!.Add(new()
+                            {
+                                Content = reader.ReadBytes((int)ImgSlider.Length),
+                                NomeFile = ImgSlider.FileName,
+                                VideoGioco = NewVideoGame,
+                                TipoAllegatoId = 2
+                            });
+                        }
+                    }
+                    if (FotoVideoObj.Video != null)
+                    {
+                        foreach (IFormFile Video in FotoVideoObj.Video)
+                        {
+                            using BinaryReader reader = new(Video.OpenReadStream());
+                            NewVideoGame.AllegatiVideoGiochi!.Add(new()
+                            {
+                                Content = reader.ReadBytes((int)Video.Length),
+                                NomeFile = Video.FileName,
+                                VideoGioco = NewVideoGame,
+                                TipoAllegatoId = 3
+                            });
+                        }
                     }
                 }
-                NewVideoGame.Generi = [];
-                if (ObjSent.Generi != null)
+                if (ObjSent.GeneriGame != null)
                 {
-                    foreach (int Gen in ObjSent.Generi)
+                    foreach (int Gen in ObjSent.GeneriGame.Generi!)
                     {
                         Genere Genere = _context.Generi.FirstOrDefault(x => x.Id == Gen) ?? throw new ArgumentException(Constants.GenereNotFound);
                         NewVideoGame.Generi!.Add(Genere);
                     }
                 }
-
                 _context.VideoGiochi.Add(NewVideoGame);
                 _context.SaveChanges();
                 return Ok(JsonConvert.SerializeObject(NewVideoGame, new JsonSerializerSettings()
@@ -162,7 +158,7 @@ namespace AppVideoGameAPI.Controllers
         [Route("EditDati")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult EditDati(EditdataVideoGameVM ObjSent)
+        public IActionResult EditDati(DataVideoGameVM ObjSent)
         {
             try
             {
@@ -186,15 +182,15 @@ namespace AppVideoGameAPI.Controllers
         [Route("EditGeneri")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult EditGeneri(EditGeneriVM ObjSent)
+        public IActionResult EditGeneri(GeneriVM ObjSent)
         {
             try
             {
                 if (!TryValidateModel(ObjSent)) return BadRequest();
-                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x=>x.Generi).FirstOrDefault(x => x.Id == ObjSent.Id)
+                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x => x.Generi).FirstOrDefault(x => x.Id == ObjSent.Id)
                     ?? throw new ArgumentException(Constants.VideoGameNotFound);
                 VideoGioco.Generi!.Clear();
-                var nuoviGeneri = _context.Generi.Where(x=>ObjSent.Generi!.Contains(x.Id)).ToList();
+                var nuoviGeneri = _context.Generi.Where(x => ObjSent.Generi!.Contains(x.Id)).ToList();
                 foreach (var gen in nuoviGeneri)
                 {
                     VideoGioco.Generi.Add(gen);
@@ -208,7 +204,62 @@ namespace AppVideoGameAPI.Controllers
             }
         }
 
-
+        [HttpPost]
+        [Route("EditFotoVideo")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult EditFotoVideo(FotoVideoVM ObjSent)
+        {
+            try
+            {
+                if (!TryValidateModel(ObjSent)) return BadRequest();
+                Models.VideoGioco VideoGioco = _context.VideoGiochi.Include(x => x.AllegatiVideoGiochi).FirstOrDefault(x => x.Id == ObjSent.Id)
+                    ?? throw new ArgumentException(Constants.VideoGameNotFound);
+                VideoGioco.AllegatiVideoGiochi!.Clear();
+                if (ObjSent.FotoGioco != null)
+                {
+                    using BinaryReader reader = new(ObjSent.FotoGioco.OpenReadStream());
+                    VideoGioco.AllegatiVideoGiochi!.Add(new()
+                    {
+                        Content = reader.ReadBytes((int)ObjSent.FotoGioco.Length),
+                        NomeFile = ObjSent.FotoGioco.FileName,
+                        TipoAllegatoId = 5
+                    });
+                }
+                if (ObjSent.FotoSlider != null)
+                {
+                    foreach (IFormFile ImgSlider in ObjSent.FotoSlider)
+                    {
+                        using BinaryReader reader = new(ImgSlider.OpenReadStream());
+                        VideoGioco.AllegatiVideoGiochi!.Add(new()
+                        {
+                            Content = reader.ReadBytes((int)ImgSlider.Length),
+                            NomeFile = ImgSlider.FileName,
+                            TipoAllegatoId = 2
+                        });
+                    }
+                }
+                if (ObjSent.Video != null)
+                {
+                    foreach (IFormFile Video in ObjSent.Video)
+                    {
+                        using BinaryReader reader = new(Video.OpenReadStream());
+                        VideoGioco.AllegatiVideoGiochi!.Add(new()
+                        {
+                            Content = reader.ReadBytes((int)Video.Length),
+                            NomeFile = Video.FileName,
+                            TipoAllegatoId = 3
+                        });
+                    }
+                }
+                _context.SaveChanges();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
         [HttpPost]
         [Route("AddAllegato")]
         [ProducesResponseType(StatusCodes.Status200OK)]

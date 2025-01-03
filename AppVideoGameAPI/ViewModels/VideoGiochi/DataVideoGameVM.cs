@@ -1,6 +1,6 @@
 ﻿namespace AppVideoGameAPI.ViewModels.VideoGiochi
 {
-    public class EditdataVideoGameVM
+    public class DataVideoGameVM
     {
         public int Id { get; set; }
         public string? Nome { get; set; }

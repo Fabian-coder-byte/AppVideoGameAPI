@@ -1,5 +1,6 @@
 ﻿using AppVideoGameAPI.DTO.Stocks;
 using AppVideoGameAPI.ViewModels;
+using AppVideoGameAPI.ViewModels.VideoGiochi;
 using AutoMapper;
 
 namespace AppVideoGameAPI.Profile
@@ -23,6 +24,10 @@ namespace AppVideoGameAPI.Profile
             //Modelli Consoles
             CreateMap<Models.ModelloConsole, ConsolePostVM>().ReverseMap();
             CreateMap<ConsolePostVM, Models.ModelloConsole>().ReverseMap();
+            //VideoGiochi
+            CreateMap<Models.CaratteristichaTecnica, RequisitoGiocoVM>().ReverseMap();
+            CreateMap<Models.VideoGioco, DataVideoGameVM>().ReverseMap();
+
         }
     }
 }
